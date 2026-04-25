@@ -1,0 +1,1653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KDD Adoption Program — Software Delivery</title>
+    <style>
+        /* === CORPORATE BASE === */
+        :root {
+            --nfq-dark: #100D25;
+            --nfq-orange: #EC683E;
+            --nfq-blue: #217BEE;
+            --nfq-pink: #D13B5F;
+            --nfq-grey: #595959;
+            --nfq-light-grey: #F5F5F5;
+            --nfq-white: #FFFFFF;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            color: var(--nfq-dark);
+            background: var(--nfq-white);
+            line-height: 1.6;
+        }
+
+        /* === LOGO === */
+        .logo { display: inline-block; }
+        .logo svg { height: 100%; width: auto; }
+        .logo-cover { position: absolute; top: 3rem; left: 4rem; height: 65px; }
+
+        /* === COVER === */
+        .cover {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 4rem;
+            background: var(--nfq-dark);
+            color: var(--nfq-white);
+            position: relative;
+            overflow: hidden;
+        }
+        .cover::before {
+            content: '';
+            position: absolute;
+            top: -40%; right: -20%;
+            width: 600px; height: 600px;
+            border-radius: 50%;
+            background: var(--nfq-orange);
+            opacity: 0.1;
+        }
+        .cover .label {
+            font-size: 1rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--nfq-orange);
+            margin-bottom: 1rem;
+        }
+        .cover h1 {
+            font-size: 4.5rem;
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+        }
+        .cover .subtitle {
+            font-size: 1.3rem;
+            color: rgba(255,255,255,0.6);
+            max-width: 600px;
+        }
+        .cover .year {
+            position: absolute;
+            bottom: 3rem; right: 4rem;
+            font-size: 1.1rem;
+            color: rgba(255,255,255,0.4);
+        }
+
+        /* === STICKY NAV === */
+        .sticky-nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 900;
+            background: rgba(16,13,37,0.95);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            padding: 0 2rem;
+            height: 48px;
+            transform: translateY(-100%);
+            transition: transform 0.3s ease;
+            gap: 0.25rem;
+        }
+        .sticky-nav.visible { transform: translateY(0); }
+        .sticky-nav a {
+            color: rgba(255,255,255,0.5);
+            text-decoration: none;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            padding: 0.45rem 0.6rem;
+            border-radius: 4px;
+            transition: color 0.2s, background 0.2s;
+            white-space: nowrap;
+        }
+        .sticky-nav a:hover { color: var(--nfq-white); background: rgba(255,255,255,0.08); }
+        .sticky-nav a.active { color: var(--nfq-orange); background: rgba(236,104,62,0.12); }
+        .sticky-nav .nav-logo { height: 22px; margin-right: 1rem; flex-shrink: 0; }
+        .sticky-nav .nav-logo svg { height: 100%; width: auto; }
+        .sticky-nav .nav-spacer { flex: 1; }
+        .sticky-nav .nav-actions { display: flex; gap: 0.5rem; align-items: center; }
+        .sticky-nav .nav-btn {
+            background: none;
+            border: 1px solid rgba(255,255,255,0.15);
+            color: rgba(255,255,255,0.6);
+            font-family: inherit;
+            font-size: 0.72rem;
+            font-weight: 600;
+            padding: 0.3rem 0.7rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .sticky-nav .nav-btn:hover { border-color: var(--nfq-orange); color: var(--nfq-white); }
+
+        /* === SECTIONS === */
+        .section {
+            padding: 5rem 4rem;
+            max-width: 100%;
+        }
+        .section.alt { background: var(--nfq-light-grey); }
+
+        .section-header {
+            display: flex;
+            align-items: baseline;
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+        .section-number {
+            font-size: 2.8rem;
+            font-weight: 700;
+            color: var(--nfq-orange);
+            white-space: nowrap;
+        }
+        .section-title {
+            font-size: 2.8rem;
+            font-weight: 700;
+        }
+        .section-subtitle {
+            font-size: 1.25rem;
+            color: var(--nfq-grey);
+            margin-top: 0.25rem;
+        }
+
+        /* === CONTENT TYPOGRAPHY === */
+        .content { max-width: 900px; }
+        .content h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin: 2.5rem 0 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--nfq-light-grey);
+        }
+        .section.alt .content h2 { border-bottom-color: #E0E0E0; }
+        .content h3 {
+            font-size: 1.35rem;
+            font-weight: 700;
+            margin: 2rem 0 0.75rem;
+        }
+        .content h4 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin: 1.5rem 0 0.5rem;
+        }
+        .content p {
+            font-size: 1rem;
+            color: var(--nfq-grey);
+            margin-bottom: 1rem;
+            line-height: 1.7;
+        }
+        .content ul, .content ol {
+            margin: 0.75rem 0 1.25rem 1.5rem;
+            color: var(--nfq-grey);
+        }
+        .content li {
+            margin-bottom: 0.4rem;
+            line-height: 1.6;
+        }
+        .content strong { color: var(--nfq-dark); }
+        .content em { font-style: italic; }
+        .content blockquote {
+            border-left: 3px solid var(--nfq-orange);
+            padding: 0.75rem 1.25rem;
+            margin: 1.25rem 0;
+            background: rgba(236,104,62,0.04);
+            border-radius: 0 8px 8px 0;
+        }
+        .content blockquote p { margin-bottom: 0; font-size: 0.95rem; }
+
+        /* === TABLES === */
+        .content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.25rem 0 1.5rem;
+            font-size: 0.9rem;
+        }
+        .content thead th {
+            text-align: left;
+            padding: 0.7rem 1rem;
+            font-weight: 700;
+            color: var(--nfq-grey);
+            border-bottom: 2px solid #E8E8E8;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .content tbody td {
+            padding: 0.7rem 1rem;
+            border-bottom: 1px solid #F0F0F0;
+            color: var(--nfq-grey);
+            vertical-align: top;
+        }
+        .content tbody td:first-child { font-weight: 600; color: var(--nfq-dark); }
+        .content tbody tr:hover { background: rgba(236,104,62,0.02); }
+
+        /* === CODE BLOCKS === */
+        .content pre {
+            background: #1a1730;
+            color: #e0dfe6;
+            border-radius: 8px;
+            padding: 1.25rem 1.5rem;
+            overflow-x: auto;
+            margin: 1rem 0 1.5rem;
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+        .content code {
+            font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', Consolas, monospace;
+            font-size: 0.88em;
+        }
+        .content p code, .content li code, .content td code {
+            background: rgba(236,104,62,0.08);
+            color: var(--nfq-orange);
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.85em;
+        }
+
+        /* === FLOW DIAGRAM === */
+        .flow-diagram {
+            background: var(--nfq-light-grey);
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 1.5rem 0;
+            text-align: center;
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-size: 0.95rem;
+            color: var(--nfq-dark);
+            line-height: 2;
+        }
+        .section.alt .flow-diagram { background: var(--nfq-white); }
+
+        /* === OVERVIEW CARD === */
+        .overview {
+            background: var(--nfq-light-grey);
+            border-radius: 12px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+        }
+        .section.alt .overview { background: var(--nfq-white); }
+        .overview-label {
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--nfq-orange);
+            margin-bottom: 0.75rem;
+        }
+        .overview-text {
+            font-size: 1.1rem;
+            color: var(--nfq-grey);
+            max-width: 700px;
+            line-height: 1.7;
+        }
+
+        /* === PILLARS === */
+        .pillars {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+        .pillar {
+            border-left: 3px solid var(--nfq-orange);
+            padding-left: 1rem;
+        }
+        .pillar h4 { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.25rem; }
+        .pillar p { font-size: 0.95rem; color: var(--nfq-grey); margin: 0; }
+
+        /* === INSIGHT CARDS === */
+        .insights-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+        .insight-card {
+            background: var(--nfq-white);
+            border-radius: 12px;
+            padding: 1.8rem;
+            border-left: 4px solid var(--nfq-orange);
+            box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+        }
+        .section:not(.alt) .insight-card { background: var(--nfq-light-grey); }
+        .insight-card h5 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .insight-card p { font-size: 0.9rem; color: var(--nfq-grey); line-height: 1.5; margin: 0; }
+        .insight-card.info { border-left-color: var(--nfq-blue); }
+        .insight-card.alert { border-left-color: var(--nfq-pink); }
+
+        /* === KPI ROW === */
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0 2rem;
+        }
+        .kpi-card {
+            background: var(--nfq-white);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+        }
+        .section:not(.alt) .kpi-card { background: var(--nfq-light-grey); }
+        .kpi-card .kpi-value { font-size: 2rem; font-weight: 700; color: var(--nfq-dark); }
+        .kpi-card .kpi-label { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--nfq-grey); margin-top: 0.3rem; }
+
+        /* === EXEC BLOCK === */
+        .exec-block {
+            padding: 3rem 4rem;
+            background: var(--nfq-dark);
+            color: rgba(255,255,255,0.85);
+        }
+        .exec-block h3 { font-size: 1.8rem; font-weight: 700; color: var(--nfq-white); margin-bottom: 1.5rem; }
+        .exec-block p { font-size: 1rem; line-height: 1.7; margin-bottom: 1rem; }
+        .exec-highlight {
+            border-left: 3px solid var(--nfq-orange);
+            padding-left: 1rem;
+            margin: 1.5rem 0;
+            font-size: 1.05rem;
+            color: var(--nfq-white);
+            font-weight: 600;
+        }
+
+        /* === DIVIDER === */
+        .divider { height: 4px; background: linear-gradient(90deg, var(--nfq-orange), var(--nfq-pink), var(--nfq-blue)); }
+
+        /* === TOC === */
+        .toc {
+            padding: 5rem 4rem;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .toc h2 { font-size: 2.8rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .toc .toc-sub { font-size: 1.1rem; color: var(--nfq-grey); margin-bottom: 3rem; }
+        .toc ol { list-style: none; padding: 0; margin: 0; }
+        .toc li { border-top: 1px solid #E8E8E8; }
+        .toc li:last-child { border-bottom: 1px solid #E8E8E8; }
+        .toc a {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            padding: 1.1rem 0.5rem;
+            text-decoration: none;
+            color: var(--nfq-dark);
+            transition: background .15s;
+        }
+        .toc a:hover { background: rgba(236,104,62,0.03); }
+        .toc .toc-num { font-size: 1.4rem; font-weight: 700; color: var(--nfq-orange); min-width: 40px; }
+        .toc .toc-title { font-size: 1.15rem; font-weight: 600; }
+        .toc .toc-desc { font-size: 0.9rem; color: var(--nfq-grey); margin-left: auto; }
+        .toc .toc-group {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--nfq-orange);
+            padding: 1.5rem 0.5rem 0.3rem;
+            border-top: 1px solid #E8E8E8;
+        }
+
+        /* === PILLAR DEEP === */
+        .pillar-deep {
+            border-radius: 12px;
+            padding: 2rem 2.5rem;
+            margin: 1.5rem 0;
+            border-left: 4px solid var(--nfq-orange);
+        }
+        .section:not(.alt) .pillar-deep { background: var(--nfq-light-grey); }
+        .section.alt .pillar-deep { background: var(--nfq-white); }
+        .pillar-deep .pillar-question {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--nfq-orange);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+        .pillar-deep h3 { margin-top: 0; }
+
+        /* === FOOTER === */
+        .footer {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: var(--nfq-dark);
+            color: var(--nfq-white);
+        }
+        .footer h2 { font-size: 2.5rem; }
+        .footer p { color: rgba(255,255,255,0.5); margin-top: 0.5rem; }
+
+        /* === FADE-IN === */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+        .fade-in.visible { opacity: 1; transform: translateY(0); }
+        .fade-in-delay-1 { transition-delay: 0.1s; }
+        .fade-in-delay-2 { transition-delay: 0.2s; }
+
+        /* === PRINT === */
+        @media print {
+            .cover { min-height: auto; padding: 2rem; page-break-after: always; }
+            .toc { min-height: auto; page-break-after: always; }
+            .section { padding: 2rem; page-break-before: always; }
+            .footer { page-break-before: always; }
+            .sticky-nav { display: none !important; }
+            .fade-in { opacity: 1 !important; transform: none !important; }
+            * { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+            @page { margin-bottom: 2cm; }
+        }
+
+        /* === RESPONSIVE === */
+        @media (max-width: 768px) {
+            .cover, .section { padding: 2.5rem 1.5rem; }
+            .cover h1 { font-size: 2.8rem; }
+            .section-title { font-size: 2rem; }
+            .section-number { font-size: 2rem; }
+            .toc { padding: 2.5rem 1.5rem; }
+            .toc .toc-desc { display: none; }
+            .pillars { grid-template-columns: 1fr; }
+            .insights-row { grid-template-columns: 1fr; }
+            .kpi-row { grid-template-columns: repeat(2, 1fr); }
+            .exec-block { padding: 2.5rem 1.5rem; }
+            .sticky-nav { padding: 0 0.75rem; }
+            .sticky-nav a { font-size: 0.65rem; padding: 0.4rem 0.4rem; }
+        }
+    </style>
+</head>
+<script src="https://accounts.google.com/gsi/client"></script>
+<body>
+<div id="auth-gate" style="position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#100D25;color:#fff;font-family:Arial,Helvetica,sans-serif;text-align:center;padding:2rem;">
+    <h2 style="font-size:1.5rem;margin-bottom:0.5rem;">KDD Documentation</h2>
+    <p style="color:rgba(255,255,255,0.5);font-size:0.95rem;margin-bottom:2rem;">Sign in with your corporate account to continue</p>
+    <div id="auth-gate-btn"></div>
+    <p id="auth-gate-error" style="color:#D13B5F;font-size:0.85rem;margin-top:1rem;display:none;"></p>
+</div>
+
+<!-- SVG DEFS -->
+<svg xmlns="http://www.w3.org/2000/svg" style="position:absolute;width:0;height:0;overflow:hidden">
+    <symbol id="nfq-white" viewBox="0 0 312.29 145.88">
+        <defs>
+            <linearGradient id="wg1" x1="16.08" y1="4553.95" x2="16.08" y2="4644.91" gradientTransform="translate(0 4667.61) scale(1 -1)" gradientUnits="userSpaceOnUse">
+                <stop offset=".25" stop-color="#ec683e"/><stop offset="1" stop-color="#d13b5f"/>
+            </linearGradient>
+            <linearGradient id="wg2" x1="16.08" y1="4584.43" x2="16.08" y2="4660.83" gradientTransform="translate(0 4667.61) scale(1 -1)" gradientUnits="userSpaceOnUse">
+                <stop offset="0" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000"/>
+            </linearGradient>
+            <linearGradient id="wg3" x1="14.82" y1="4649.54" x2="81.61" y2="4552.17" gradientTransform="translate(0 4667.61) scale(1 -1)" gradientUnits="userSpaceOnUse">
+                <stop offset=".25" stop-color="#d13b5f"/><stop offset="1" stop-color="#217bee"/>
+            </linearGradient>
+            <linearGradient id="wg4" x1="46.31" y1="4603.85" x2="80.07" y2="4550.73" gradientTransform="translate(0 4667.61) scale(1 -1)" gradientUnits="userSpaceOnUse">
+                <stop offset="0" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000"/>
+            </linearGradient>
+            <clipPath id="wclip"><rect x=".17" y="6.44" width="96.46" height="120"/></clipPath>
+        </defs>
+        <g clip-path="url(#wclip)">
+            <path fill="url(#wg1)" d="M32.16,108.22L0,126.78V25.34L32.15,6.78v101.44Z"/>
+            <path fill="url(#wg2)" fill-opacity=".3" d="M32.16,108.22L0,126.78V25.34L32.15,6.78v101.44Z"/>
+            <path fill="url(#wg3)" d="M96.46,108.22l-32.16,18.56L0,25.34,32.15,6.78l64.31,101.44Z"/>
+            <path fill="url(#wg4)" fill-opacity=".2" d="M96.46,108.22l-32.16,18.56L0,25.34,32.15,6.78l64.31,101.44Z"/>
+            <path fill="#217bee" d="M96.46,108.22l-32.16,18.56V25.34L96.46,6.78v101.44Z"/>
+        </g>
+        <path fill="#fff" d="M312.01,35.56l-17.64,12.6c-3.92-8.54-12.46-13.16-21.28-13.16-13.58,0-28,10.92-28,35.42s13.02,35.56,26.18,35.56c10.08,0,20.3-6.86,24.92-20.3v60.2h16.1V35.56h-.28ZM296.19,70.98c-.14,18.06-8.68,27.02-17.22,27.02s-17.22-9.1-17.22-27.58c0-20.02,9.1-29.68,17.92-29.68,8.26,0,16.38,8.54,16.52,24.64v5.6Z"/>
+        <path fill="#fff" d="M251.33,19.46c-11.06-10.5-18.62-15.68-22.82-15.68-2.94,0-4.34,2.38-4.34,7.14v25.62h21.98v3.08h-21.98v64.82h-16.24V39.62h-9.8v-3.08h9.8v-1.54c0-27.86,13.72-35,28.56-35,5.04,0,10.22.84,14.98,1.96l-.14,17.5Z"/>
+        <path fill="#fff" d="M146.41,51.24c5.88-11.2,15.12-16.24,23.94-16.24,12.46,0,24.08,9.94,24.08,26.04v43.4h-16.1v-40.32c0-14.84-6.72-22.12-14.42-22.12-6.16,0-13.16,4.9-17.5,14.42v48.02h-16.1V38.92l15.82-3.36h.28v15.68Z"/>
+    </symbol>
+</svg>
+
+<!-- STICKY NAV -->
+<nav class="sticky-nav" id="sticky-nav">
+    <div class="nav-logo"><svg viewBox="0 0 312.29 145.88"><use href="#nfq-white"/></svg></div>
+    <a href="#sec-1" data-nav="sec-1">Framing</a>
+    <a href="#sec-2" data-nav="sec-2">Week 1</a>
+    <a href="#sec-3" data-nav="sec-3">Week 2</a>
+    <a href="#sec-4" data-nav="sec-4">Week 3</a>
+    <a href="#sec-5" data-nav="sec-5">Week 4</a>
+    <a href="#sec-6" data-nav="sec-6">Summary</a>
+    <a href="#sec-7" data-nav="sec-7">Reference</a>
+    <div class="nav-spacer"></div>
+    <div class="nav-actions">
+        <button class="nav-btn" onclick="window.print()" title="Export to PDF">PDF &#x2197;</button>
+    </div>
+</nav>
+
+<!-- COVER -->
+<section class="cover">
+    <div class="logo logo-cover"><svg viewBox="0 0 312.29 145.88"><use href="#nfq-white"/></svg></div>
+    <div class="label">Knowledge-Driven Development</div>
+    <h1>SDLC Adoption<br>Program</h1>
+    <p class="subtitle">4-week program for development teams. From first spec to agent-assisted delivery.</p>
+    <span class="year">2026</span>
+</section>
+
+<!-- TOC -->
+<nav class="toc">
+    <h2>Contents</h2>
+    <p class="toc-sub">4 weeks from first spec to agent-assisted delivery</p>
+    <ol>
+        <li class="toc-group">Program Design</li>
+        <li><a href="#sec-1"><span class="toc-num">01</span><span class="toc-title">Framing</span><span class="toc-desc">Objective, problem, audience, prerequisites, tools</span></a></li>
+
+        <li class="toc-group">Weekly Program</li>
+        <li><a href="#sec-2"><span class="toc-num">02</span><span class="toc-title">Week 1 &mdash; Foundations</span><span class="toc-desc">Taxonomy, anatomy, and first specs</span></a></li>
+        <li><a href="#sec-3"><span class="toc-num">03</span><span class="toc-title">Week 2 &mdash; The Graph</span><span class="toc-desc">Relationships, governance, and quality</span></a></li>
+        <li><a href="#sec-4"><span class="toc-num">04</span><span class="toc-title">Week 3 &mdash; Activation</span><span class="toc-desc">Specs as context for agents</span></a></li>
+        <li><a href="#sec-5"><span class="toc-num">05</span><span class="toc-title">Week 4 &mdash; Consolidate</span><span class="toc-desc">Metrics, quality, and sustainability</span></a></li>
+
+        <li class="toc-group">Appendix</li>
+        <li><a href="#sec-6"><span class="toc-num">06</span><span class="toc-title">Summary Table</span><span class="toc-desc">Greenfield vs Brownfield by week</span></a></li>
+        <li><a href="#sec-7"><span class="toc-num">07</span><span class="toc-title">Reference Material</span><span class="toc-desc">Framework docs, guides, and CLI commands</span></a></li>
+    </ol>
+</nav>
+
+<div class="divider"></div>
+
+<!-- ============================================================ -->
+<!-- SECTION 01 — FRAMING -->
+<!-- ============================================================ -->
+<section id="sec-1" class="section">
+    <div class="section-header fade-in">
+        <span class="section-number">01</span>
+        <div>
+            <div class="section-title">Framing</div>
+            <div class="section-subtitle">Program objective, problem, audience, prerequisites, and tools</div>
+        </div>
+    </div>
+    <div class="content fade-in fade-in-delay-1">
+
+        <div class="overview">
+            <div class="overview-label">Program Objective</div>
+            <p class="overview-text">The development team <strong>gets familiar with the KDD methodology, understands its value, and starts applying it</strong> on their real project. Over 4 weeks, the team understands, practices, experiences, and adopts structured knowledge for software delivery.</p>
+        </div>
+
+        <div class="kpi-row">
+            <div class="kpi-card">
+                <div class="kpi-value">4</div>
+                <div class="kpi-label">Weeks</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">2h</div>
+                <div class="kpi-label">Workshop / Week</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">1-2h</div>
+                <div class="kpi-label">Coaching / Week</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">5-7h</div>
+                <div class="kpi-label">Total / Week</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">4-8</div>
+                <div class="kpi-label">People</div>
+            </div>
+        </div>
+
+        <div class="pillars">
+            <div class="pillar">
+                <h4>Week 1: Understand</h4>
+                <p>The team captures what it knows (domain, architecture)</p>
+            </div>
+            <div class="pillar">
+                <h4>Week 2: Connect</h4>
+                <p>The graph takes shape, relationships provide context</p>
+            </div>
+            <div class="pillar">
+                <h4>Week 3: Activate</h4>
+                <p>Knowledge works for the team (features + code generation)</p>
+            </div>
+            <div class="pillar">
+                <h4>Week 4: Consolidate</h4>
+                <p>Knowledge grows with every delivery</p>
+            </div>
+        </div>
+
+        <h2>The Problem KDD Solves</h2>
+        <p>Four failure patterns in teams adopting AI without a knowledge methodology:</p>
+
+        <div class="insights-row">
+            <div class="insight-card alert">
+                <h5>Tool-first</h5>
+                <p>The team adopts the tool (Copilot, ChatGPT) without defining what knowledge it needs. Result: generic suggestions, uncritical acceptance.</p>
+            </div>
+            <div class="insight-card alert">
+                <h5>Black-box</h5>
+                <p>Generated code works but nobody understands why. No traceability from requirement to implementation.</p>
+            </div>
+            <div class="insight-card alert">
+                <h5>Infinite Rewrites</h5>
+                <p>Without clear specs, AI agents generate, devs reject, regenerate, adjust... infinite cycle without convergence.</p>
+            </div>
+            <div class="insight-card alert">
+                <h5>No Governance</h5>
+                <p>Every developer uses AI their own way. No standard, no audit trail, no organizational learning.</p>
+            </div>
+        </div>
+
+        <h2>Audience</h2>
+        <table>
+            <thead>
+                <tr><th>Role</th><th>Program Role</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Tech Lead / Architect</td><td>Champion, writes ARCH specs, leads governance</td></tr>
+                <tr><td>Senior Developer</td><td>Writes DOM/FEAT specs, executes work artifacts</td></tr>
+                <tr><td>Developer</td><td>Contributes specs from their area, uses spec-as-prompt</td></tr>
+                <tr><td>QA / Tester</td><td>Validates acceptance criteria, writes test specs</td></tr>
+            </tbody>
+        </table>
+
+        <h2>Greenfield vs Brownfield</h2>
+        <table>
+            <thead>
+                <tr><th>Aspect</th><th>Greenfield</th><th>Brownfield</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Starting point</td><td>No code or prior decisions</td><td>Existing code, implicit decisions, tech debt</td></tr>
+                <tr><td>First focus</td><td>Foundational ARCH + DOM of the domain</td><td>DOM for critical rules (the ones that cause bugs)</td></tr>
+                <tr><td>Data source</td><td>Design documents, stakeholder interviews</td><td>Git history, Slack threads, tribal knowledge</td></tr>
+                <tr><td>Risk</td><td>Over-engineering specs before validating</td><td>"We already know this, why document?"</td></tr>
+                <tr><td>Quick win</td><td>Specs as input for AI generation from day 1</td><td>Capture the rule that caused the last production bug</td></tr>
+            </tbody>
+        </table>
+
+        <h2>Prerequisites</h2>
+
+        <h3>Required Reading</h3>
+        <table>
+            <thead>
+                <tr><th>Resource</th><th>What It Covers</th><th>Time</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><a href="https://kdd-docs.web.app/kdd-foundation" style="color:var(--nfq-blue)">KDD Strategic Foundation</a></td><td>Why KDD exists: the manifesto, three pillars, four design principles</td><td>30 min</td></tr>
+                <tr><td><a href="https://kdd-docs.web.app/kdd-operational" style="color:var(--nfq-blue)">KDD Operational Documentation</a></td><td>How to use KDD: guides, reference, patterns</td><td>45 min</td></tr>
+                <tr><td><a href="https://kdd-docs.web.app/anatomy-coding-agent" style="color:var(--nfq-blue)">Anatomy of a Coding Agent</a></td><td>How AI coding agents work internally &mdash; context window, tool use, planning loops</td><td>20 min</td></tr>
+            </tbody>
+        </table>
+
+        <h3>Introductory AI Courses (choose one)</h3>
+        <table>
+            <thead>
+                <tr><th>Course</th><th>Platform</th><th>Time</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><a href="https://docs.anthropic.com/en/docs/build-with-claude" style="color:var(--nfq-blue)">Claude for Developers</a></td><td>Anthropic</td><td>1-2h</td></tr>
+                <tr><td><a href="https://ai.google.dev/gemini-api/docs/quickstart" style="color:var(--nfq-blue)">Gemini API Quickstart</a></td><td>Google</td><td>1-2h</td></tr>
+                <tr><td><a href="https://learn.microsoft.com/en-us/training/paths/copilot/" style="color:var(--nfq-blue)">GitHub Copilot Fundamentals</a></td><td>Microsoft Learn</td><td>1-2h</td></tr>
+            </tbody>
+        </table>
+
+        <blockquote><p>The goal is not mastery &mdash; it's having a baseline understanding of what AI tools can do, so the program can focus on <strong>how to use them with structured knowledge</strong>.</p></blockquote>
+
+        <h3>Technical Setup</h3>
+        <ul>
+            <li>Git repository accessible to all participants</li>
+            <li>Permissions to create directories and PRs</li>
+            <li>Node.js 18+ (for spec-graph CLI)</li>
+            <li>Access to at least one AI coding tool (Claude Code, Cursor, Copilot, etc.)</li>
+        </ul>
+
+        <h2>Tools</h2>
+        <table>
+            <thead>
+                <tr><th>Tool</th><th>Purpose</th><th>When</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Git + Markdown editor</td><td>Write and version specs</td><td>From week 1</td></tr>
+                <tr><td>spec-graph CLI</td><td>Validate, navigate, activate context</td><td>From week 1</td></tr>
+                <tr><td>AI coding agent</td><td>Spec-driven development with specs as context</td><td>From week 3</td></tr>
+            </tbody>
+        </table>
+
+    </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SECTION 02 — WEEK 1 -->
+<!-- ============================================================ -->
+<section id="sec-2" class="section alt">
+    <div class="section-header fade-in">
+        <span class="section-number">02</span>
+        <div>
+            <div class="section-title">Week 1 &mdash; Foundations</div>
+            <div class="section-subtitle">Taxonomy, anatomy, and first specs</div>
+        </div>
+    </div>
+    <div class="content fade-in fade-in-delay-1">
+
+        <div class="overview">
+            <div class="overview-label">Objective</div>
+            <p class="overview-text">The team understands the KDD framework, masters spec structure, and writes their first DOM and ARCH specs on their real project.</p>
+        </div>
+
+        <h2>Workshop (2h)</h2>
+
+        <h3>Block 1: KDD Taxonomy &mdash; Three Artifact Axes (25 min)</h3>
+
+        <table>
+            <thead>
+                <tr><th>Axis</th><th>Nature</th><th>SDLC Examples</th><th>Persists?</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Knowledge</td><td>What the organization knows</td><td>ARCH, DOM, PROD, FEAT, DOC</td><td>Yes &mdash; grows across projects</td></tr>
+                <tr><td>Work</td><td>What the team is doing now</td><td>WRK-SPEC, WRK-PLAN, WRK-TASK</td><td>No &mdash; scoped to a delivery</td></tr>
+                <tr><td>Governance</td><td>How knowledge evolves</td><td>ADR, RULE, RFC</td><td>Yes &mdash; bridges Knowledge and Work</td></tr>
+            </tbody>
+        </table>
+
+        <h4>Knowledge Spec Types for SDLC</h4>
+        <table>
+            <thead>
+                <tr><th>Type</th><th>ID</th><th>What It Captures</th><th>When to Create</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Architecture</td><td>ARCH</td><td>Technical constraints, patterns, infrastructure decisions</td><td>Cross-cutting technical decisions</td></tr>
+                <tr><td>Domain</td><td>DOM</td><td>Business rules, regulatory requirements, domain logic</td><td>Rules that multiple features must respect</td></tr>
+                <tr><td>Product</td><td>PROD</td><td>Product-level requirements, user journeys</td><td>End-to-end capabilities</td></tr>
+                <tr><td>Feature</td><td>FEAT</td><td>Specific functionality, screens, behaviors</td><td>User-facing behavior</td></tr>
+                <tr><td>Documentation</td><td>DOC</td><td>Guides, tutorials, onboarding materials</td><td>How-to knowledge</td></tr>
+            </tbody>
+        </table>
+
+        <h4>Work Spec Types</h4>
+        <table>
+            <thead>
+                <tr><th>Type</th><th>ID</th><th>What It Captures</th><th>When to Create</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Work Spec</td><td>WRK-SPEC</td><td>What to build and why, with activated knowledge</td><td>Starting a new feature or change</td></tr>
+                <tr><td>Work Plan</td><td>WRK-PLAN</td><td>How to build it (task decomposition, approach)</td><td>After WRK-SPEC is defined</td></tr>
+                <tr><td>Work Task</td><td>WRK-TASK</td><td>Atomic unit, implementable by 1 person or agent</td><td>Individual implementation units</td></tr>
+            </tbody>
+        </table>
+
+        <blockquote><p><strong>Heuristic:</strong> Does it affect many features? &rarr; <strong>ARCH</strong>. Does the domain expert own it? &rarr; <strong>DOM</strong>. Does product own it? &rarr; <strong>PROD</strong>. Is it user-facing behavior? &rarr; <strong>FEAT</strong>. Is it a how-to? &rarr; <strong>DOC</strong>.</p></blockquote>
+
+        <h3>Block 2: Spec Anatomy (25 min)</h3>
+        <p>Every spec has two parts: <strong>YAML frontmatter</strong> (machine-readable metadata) + <strong>Markdown body</strong> (human-readable content).</p>
+
+        <h4>Frontmatter &mdash; Required Fields</h4>
+<pre><code>---
+id: DOM-PAYMENTS-001              # Unique identifier: TYPE-AREA-NNN
+type: knowledge                   # knowledge | work | governance
+layer: domain                     # architecture | domain | product | feature | documentation
+title: Domestic transfer limits
+status: draft                     # draft &rarr; active &rarr; deprecated
+confidence: medium                # low | medium | high
+version: "0.1.0"
+owner: payments-team
+domain: payments
+tags: [transfers, limits, compliance]
+dependencies:
+  - id: ARCH-001
+    type: constrained-by          # constrained-by | implements | extends | depends-on
+---</code></pre>
+
+        <h4>Body &mdash; Standard Sections</h4>
+        <table>
+            <thead>
+                <tr><th>Section</th><th>Purpose</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Intent</td><td>Why does this spec exist? 2-3 sentences. The most important section.</td></tr>
+                <tr><td>Definition</td><td>The actual content: rules, decisions, capabilities, behavior.</td></tr>
+                <tr><td>Acceptance Criteria</td><td>How do we know it's correctly implemented? Checklist.</td></tr>
+                <tr><td>Evidence</td><td>What validates this spec? Test results, regulatory refs, sign-offs.</td></tr>
+            </tbody>
+        </table>
+
+        <h4>Dependencies &mdash; How Specs Connect</h4>
+        <table>
+            <thead>
+                <tr><th>Relation</th><th>Meaning</th><th>Example</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code>constrained-by</code></td><td>Must respect constraints from another spec</td><td>DOM constrained-by ARCH</td></tr>
+                <tr><td><code>implements</code></td><td>Implements a higher-level spec</td><td>FEAT implements PROD</td></tr>
+                <tr><td><code>extends</code></td><td>Adds detail to another spec at the same level</td><td>DOM-002 extends DOM-001</td></tr>
+                <tr><td><code>depends-on</code></td><td>Generic dependency</td><td>Any layer</td></tr>
+                <tr><td><code>activates</code></td><td>Work artifact activates knowledge as context</td><td>WRK-SPEC activates DOM, ARCH</td></tr>
+            </tbody>
+        </table>
+
+        <h3>Block 3: Live Demo &mdash; Your First Spec (30 min)</h3>
+        <p>The facilitator writes a spec live. The topic should come from the team's own context. Good candidates:</p>
+        <ul>
+            <li>A <strong>recent client request</strong> that required clarifying a business rule</li>
+            <li>A <strong>recent bug</strong> whose root cause was an undocumented domain rule</li>
+            <li>An <strong>architecture decision</strong> the team made recently but didn't formalize</li>
+            <li>A <strong>recurring question</strong> that new team members always ask</li>
+        </ul>
+
+        <blockquote><p><strong>Tip for facilitators:</strong> Ask the team beforehand: <em>"What's the last thing you had to explain twice?"</em> &mdash; that's your first spec.</p></blockquote>
+
+        <h4>Example Spec</h4>
+<pre><code>---
+id: DOM-PAYMENTS-001
+type: knowledge
+layer: domain
+title: Domestic transfer limits
+status: draft
+confidence: medium
+version: "0.1.0"
+owner: payments-team
+domain: payments
+tags: [transfers, limits, compliance]
+dependencies:
+  - id: ARCH-001
+    type: constrained-by
+---
+
+## Intent
+Define maximum transfer amounts for domestic payments,
+ensuring compliance with AML thresholds.
+
+## Definition
+
+### Transfer Limits
+
+| Customer Tier | Single Transfer | Daily Aggregate |
+|---------------|---------------:|----------------:|
+| Standard      |        &euro;10,000 |         &euro;25,000 |
+| Premium       |        &euro;50,000 |        &euro;100,000 |
+| Corporate     |       &euro;500,000 |      &euro;1,000,000 |
+
+### Rules
+- Transfers exceeding the single limit require dual approval.
+- Daily aggregate is calculated on a rolling 24-hour window.
+- Corporate limits may be overridden per-client via RULE artifacts.
+
+## Acceptance Criteria
+- [ ] Payment service enforces single-transfer limits by tier
+- [ ] Daily aggregate check runs before authorization
+- [ ] Dual approval flow triggers above threshold
+
+## Evidence
+- AML regulation reference: EU Directive 2015/849
+- Business validation: Product owner sign-off pending</code></pre>
+
+        <h4>First spec-graph Commands</h4>
+<pre><code>spec-graph validate          # Any errors in the specs?
+spec-graph stats             # How many specs do we have? What types?</code></pre>
+
+        <h3>Block 4: Guided Exercise (10 min)</h3>
+        <p>Each participant picks a topic from their own area &mdash; a business rule, a client requirement, an architecture constraint. Write the complete YAML frontmatter (frontmatter only, body during autonomous work).</p>
+
+        <h2>Coaching (1-2h)</h2>
+
+        <div class="pillars">
+            <div class="pillar">
+                <h4>Brownfield</h4>
+                <p>Identify 3-5 critical domain rules (recurring bugs, constant explanations, tribal knowledge). Write DOM specs. Specs coexist with existing wikis; gradual migration.</p>
+            </div>
+            <div class="pillar">
+                <h4>Greenfield</h4>
+                <p>Define foundational ARCH specs (tech stack, patterns, constraints). Write DOM specs for the project's domain. Use specs as the single source of truth from day 1.</p>
+            </div>
+            <div class="pillar">
+                <h4>Both</h4>
+                <p>Complete frontmatter, honest confidence levels (low/medium for first specs). Declare dependencies between specs. Run <code>spec-graph validate</code> when done.</p>
+            </div>
+        </div>
+
+        <h2>Autonomous Work</h2>
+        <p>Each member writes 1-2 specs from their area. Repository setup:</p>
+<pre><code>specs/
+&#x251C;&#x2500;&#x2500; architecture/    # ARCH specs
+&#x251C;&#x2500;&#x2500; domain/          # DOM specs
+&#x251C;&#x2500;&#x2500; product/         # PROD specs
+&#x251C;&#x2500;&#x2500; features/        # FEAT specs
+&#x2514;&#x2500;&#x2500; docs/            # DOC specs</code></pre>
+
+        <h2>Week 1 Deliverables</h2>
+        <table>
+            <thead>
+                <tr><th>Criterion</th><th>Minimum</th><th>Desirable</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code>specs/</code> directory created</td><td>&#x2713;</td><td>&#x2713;</td></tr>
+                <tr><td>DOM specs written</td><td>3</td><td>5+</td></tr>
+                <tr><td>ARCH specs written</td><td>2</td><td>3+</td></tr>
+                <tr><td>Dependencies declared</td><td>&#x2713;</td><td>&#x2713;</td></tr>
+                <tr><td><code>spec-graph validate</code> executed</td><td>&#x2713;</td><td>&#x2713;</td></tr>
+                <tr><td>Team aligned on taxonomy and anatomy</td><td>&#x2713;</td><td>&#x2713;</td></tr>
+            </tbody>
+        </table>
+
+    </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SECTION 03 — WEEK 2 -->
+<!-- ============================================================ -->
+<section id="sec-3" class="section">
+    <div class="section-header fade-in">
+        <span class="section-number">03</span>
+        <div>
+            <div class="section-title">Week 2 &mdash; The Graph</div>
+            <div class="section-subtitle">Relationships, governance, and quality</div>
+        </div>
+    </div>
+    <div class="content fade-in fade-in-delay-1">
+
+        <div class="overview">
+            <div class="overview-label">Objective</div>
+            <p class="overview-text">The team connects specs into a navigable graph, introduces governance (ADR, RULE), and raises spec quality through review.</p>
+        </div>
+
+        <h2>Workshop (2h)</h2>
+
+        <h3>Block 1: The Knowledge Graph &mdash; From Isolated Specs to a Network (30 min)</h3>
+        <p>Individual specs have value, but exponential value is in the <strong>relationships</strong>.</p>
+
+        <div class="flow-diagram">
+ARCH-001 (microservices pattern)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;|<br>
+&nbsp;&nbsp;&nbsp;&nbsp;+-- constrained-by &larr; DOM-PAYMENTS-001 (transfer limits)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|<br>
+&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+-- implements &larr; FEAT-TRANSFER-001<br>
+&nbsp;&nbsp;&nbsp;&nbsp;|<br>
+&nbsp;&nbsp;&nbsp;&nbsp;+-- constrained-by &larr; DOM-PAYMENTS-002 (AML validation)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+-- implements &larr; FEAT-AML-001
+        </div>
+
+        <h4>spec-graph Commands to Navigate the Graph</h4>
+<pre><code>spec-graph build --html              # Interactive graph visualization
+spec-graph context DOM-PAYMENTS-001 --depth 2   # What's connected?
+spec-graph impact ARCH-001                       # What's affected if this changes?
+spec-graph orphans                               # Specs without connections</code></pre>
+
+        <h3>Block 2: Governance &mdash; RFC &rarr; SPEC &rarr; ADR (45 min)</h3>
+        <table>
+            <thead>
+                <tr><th>Artifact</th><th>When to Use</th><th>Example</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>RFC</td><td>Significant change affecting multiple teams/specs</td><td>Migrate from REST to gRPC</td></tr>
+                <tr><td>SPEC</td><td>New knowledge, local improvement</td><td>New domain rule</td></tr>
+                <tr><td>ADR</td><td>Record a decision (with or without prior RFC)</td><td>"We chose PostgreSQL because..."</td></tr>
+                <tr><td>RULE</td><td>Permanent constraint applying to multiple specs</td><td>"Every feature requires a WRK-SPEC"</td></tr>
+            </tbody>
+        </table>
+
+        <h4>ADR Structure</h4>
+<pre><code>---
+id: ADR-001
+type: governance
+layer: architecture
+title: Selection of primary database
+status: accepted
+date: 2026-03-25
+---
+
+## Context
+[Situation that motivated the decision]
+
+## Decision
+[One clear sentence]
+
+## Rationale
+[Why this option and not the alternatives]
+
+## Consequences
+- **Positive**: ...
+- **Negative**: ...
+- **Risks**: ...
+
+## Alternatives considered
+1. [Option B] &mdash; discarded because...</code></pre>
+
+        <blockquote><p><strong>Tip:</strong> Write ADRs even for rejected proposals &mdash; the reasoning has value.</p></blockquote>
+
+        <h3>Block 3: Spec Quality &mdash; Confidence Levels and Review (25 min)</h3>
+        <table>
+            <thead>
+                <tr><th>Level</th><th>Meaning</th><th>When to Assign</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>LOW</td><td>Inferred, not validated</td><td>First capture from docs or conversations</td></tr>
+                <tr><td>MEDIUM</td><td>Validated OR reviewed</td><td>Tested in code or reviewed by peer</td></tr>
+                <tr><td>HIGH</td><td>Validated AND reviewed</td><td>Tested in production and reviewed by domain expert</td></tr>
+            </tbody>
+        </table>
+
+        <h4>Review Checklist</h4>
+        <ul>
+            <li>Is frontmatter complete?</li>
+            <li>Are dependencies declared?</li>
+            <li>Are acceptance criteria testable?</li>
+            <li>Is the confidence level honest?</li>
+        </ul>
+<pre><code>spec-graph validate       # Integrity errors
+spec-graph orphans        # Specs without connections
+spec-graph stats          # Overview</code></pre>
+
+        <h3>Block 4: Live Demo &mdash; Write an ADR + Review Specs (20 min)</h3>
+        <div class="pillars">
+            <div class="pillar">
+                <h4>Brownfield</h4>
+                <p>Retroactive ADR &mdash; mine a past architecture decision and document it</p>
+            </div>
+            <div class="pillar">
+                <h4>Greenfield</h4>
+                <p>Foundational ADR &mdash; document a recent stack decision</p>
+            </div>
+        </div>
+        <p>Then cross-review 2-3 specs in pairs using the quality checklist.</p>
+
+        <h2>Coaching (1-2h)</h2>
+        <div class="pillars">
+            <div class="pillar">
+                <h4>Brownfield</h4>
+                <p>Mine past decisions: review git history, Slack threads, meeting notes. Write 2-3 retroactive ADRs. Complete dependencies between week 1 specs.</p>
+            </div>
+            <div class="pillar">
+                <h4>Greenfield</h4>
+                <p>Write foundational ADRs: stack, framework, communication patterns. Establish ARCH specs with well-declared dependencies.</p>
+            </div>
+            <div class="pillar">
+                <h4>Both</h4>
+                <p>Cross-review week 1 specs. Raise confidence levels where appropriate. <code>spec-graph validate</code> clean. Resolve orphans.</p>
+            </div>
+        </div>
+
+        <h2>Autonomous Work</h2>
+        <ul>
+            <li>Each member writes 1+ new spec and reviews 2 specs from peers</li>
+            <li>Explore the graph with <code>spec-graph build --html</code></li>
+            <li>Connect orphaned specs</li>
+        </ul>
+
+        <h2>Week 2 Deliverables</h2>
+        <table>
+            <thead>
+                <tr><th>Criterion</th><th>Minimum</th><th>Desirable</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>ADRs written</td><td>2</td><td>4+</td></tr>
+                <tr><td><code>spec-graph validate</code> without errors</td><td>&#x2713;</td><td>&#x2713;</td></tr>
+                <tr><td>Graph visualized (<code>build --html</code>)</td><td>&#x2713;</td><td>&#x2713;</td></tr>
+                <tr><td>Cross-review completed</td><td>&#x2713;</td><td>&#x2713;</td></tr>
+                <tr><td>Orphans resolved</td><td>&#x2713;</td><td>&#x2713;</td></tr>
+                <tr><td>Total specs accumulated</td><td>10</td><td>15+</td></tr>
+            </tbody>
+        </table>
+
+    </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SECTION 04 — WEEK 3 -->
+<!-- ============================================================ -->
+<section id="sec-4" class="section alt">
+    <div class="section-header fade-in">
+        <span class="section-number">04</span>
+        <div>
+            <div class="section-title">Week 3 &mdash; Activation</div>
+            <div class="section-subtitle">Specs as context for agents</div>
+        </div>
+    </div>
+    <div class="content fade-in fade-in-delay-1">
+
+        <div class="overview">
+            <div class="overview-label">Objective</div>
+            <p class="overview-text">The team learns to <strong>activate</strong> specs as context and use them with an AI agent for spec-driven feature development. This is the week where everything clicks.</p>
+        </div>
+
+        <h2>Workshop (2h)</h2>
+
+        <h3>Block 1: Contextual Activation &mdash; The Pipeline (30 min)</h3>
+        <p><strong>The problem</strong>: an AI coding agent without project-specific context generates generic code. An agent with the right specs as context generates code aligned with the team's architecture, domain rules, and patterns.</p>
+
+        <h4>Activation Pipeline &mdash; 4 Steps</h4>
+        <table>
+            <thead>
+                <tr><th>Step</th><th>What It Does</th><th>How</th><th>Tool</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>1. Explicit</td><td>Identify what knowledge the task needs</td><td><code>activates</code> field in WRK-SPEC</td><td>Team knowledge</td></tr>
+                <tr><td>2. Transitive</td><td>Follow dependencies for complete context</td><td><code>spec-graph context &lt;id&gt; --depth 2</code></td><td>spec-graph CLI</td></tr>
+                <tr><td>3. Filtered</td><td>Remove specs not relevant to the current scope</td><td>By SDLC phase, domain, layer</td><td>Manual or flag</td></tr>
+                <tr><td>4. Budgeted</td><td>Limit the bundle to what the agent can process</td><td>5-10 specs per WRK-SPEC, 2-5 per WRK-TASK</td><td>Pragmatism</td></tr>
+            </tbody>
+        </table>
+
+        <h4>Activation Matrix by SDLC Phase</h4>
+        <table>
+            <thead>
+                <tr><th>Phase</th><th>Primary Specs</th><th>Secondary Specs</th><th>Typical Bundle</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Requirements</td><td>PROD (product vision), DOM (business rules)</td><td>ARCH (constraints)</td><td>4-8 specs</td></tr>
+                <tr><td>Design</td><td>ARCH (patterns), DOM (rules)</td><td>PROD (context), FEAT (existing behavior)</td><td>5-10 specs</td></tr>
+                <tr><td>Build</td><td>FEAT (what to build), DOM (rules to respect)</td><td>ARCH (patterns to follow)</td><td>3-7 specs</td></tr>
+                <tr><td>Test</td><td>DOM (rules to validate), FEAT (expected behavior)</td><td>PROD (acceptance criteria)</td><td>3-6 specs</td></tr>
+                <tr><td>Review</td><td>ADR (decisions), ARCH (standards)</td><td>DOM (compliance)</td><td>2-5 specs</td></tr>
+            </tbody>
+        </table>
+
+        <h3>Block 2: Work Artifacts &mdash; WRK-SPEC &rarr; WRK-PLAN &rarr; WRK-TASK (20 min)</h3>
+        <table>
+            <thead>
+                <tr><th>Artifact</th><th>Purpose</th><th>Owner</th><th>Scope</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>WRK-SPEC</td><td>What and why (scope, constraints, activated knowledge)</td><td>Tech Lead / Architect</td><td>Complete feature</td></tr>
+                <tr><td>WRK-PLAN</td><td>How (task decomposition, technical approach)</td><td>Tech Lead</td><td>Implementation approach</td></tr>
+                <tr><td>WRK-TASK</td><td>Do (atomic unit, implementable by 1 person or agent)</td><td>Dev / AI Agent</td><td>Specific files</td></tr>
+            </tbody>
+        </table>
+
+        <h4>Key Field in WRK-SPEC &mdash; <code>activates</code></h4>
+<pre><code>activates:
+  - DOM-PAYMENTS-001    # Transfer limits rule
+  - ARCH-002            # Validation pattern
+  - FEAT-TRANSFER-003   # Existing transfer feature</code></pre>
+
+        <blockquote><p><strong>Sizing:</strong> 3-8 WRK-TASKs per WRK-PLAN. If more, the scope is too broad.</p></blockquote>
+
+        <h3>Block 3: Spec-Driven Development Agent &mdash; Live Demo (40 min)</h3>
+        <p><strong>Scenario</strong>: The team needs to implement a new feature. They use specs as context for an AI coding agent.</p>
+
+        <h4>Complete Flow</h4>
+        <div class="flow-diagram">
+1. FEATURE REQUEST<br>
+&nbsp;&nbsp;&nbsp;"Add dual approval for transfers above &euro;10,000"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&darr;<br>
+2. WRK-SPEC (what and why)<br>
+&nbsp;&nbsp;&nbsp;&rarr; activates: DOM-PAYMENTS-001, ARCH-002, FEAT-TRANSFER-001<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&darr;<br>
+3. ACTIVATE CONTEXT<br>
+&nbsp;&nbsp;&nbsp;&rarr; spec-graph context WRK-SPEC-001 --depth 2<br>
+&nbsp;&nbsp;&nbsp;&rarr; Bundle: domain rules + architecture patterns + existing behavior<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&darr;<br>
+4. WRK-PLAN + WRK-TASKs &mdash; with agent assistance<br>
+&nbsp;&nbsp;&nbsp;&rarr; Agent receives bundle + WRK-SPEC<br>
+&nbsp;&nbsp;&nbsp;&rarr; Proposes plan aligned with architecture<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&darr;<br>
+5. IMPLEMENT EACH WRK-TASK &mdash; with agent<br>
+&nbsp;&nbsp;&nbsp;&rarr; Agent receives task + relevant specs from bundle<br>
+&nbsp;&nbsp;&nbsp;&rarr; Generates code respecting domain rules<br>
+&nbsp;&nbsp;&nbsp;&rarr; Code follows architecture patterns<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&darr;<br>
+6. CONSOLIDATE<br>
+&nbsp;&nbsp;&nbsp;&rarr; DOM, ARCH, FEAT updated<br>
+&nbsp;&nbsp;&nbsp;&rarr; ADR written for significant decisions
+        </div>
+
+        <h4>Prompt Template &mdash; Feature Implementation</h4>
+<pre><code>## Feature to implement
+[Paste WRK-SPEC content: what, why, acceptance criteria]
+
+## Domain rules that apply
+[Paste DOM specs &mdash; business rules this feature must respect]
+
+## Architecture patterns to follow
+[Paste ARCH specs &mdash; patterns, constraints, standards]
+
+## Existing feature behavior
+[Paste FEAT spec &mdash; how the affected area works today]
+
+## Previous decisions
+[Paste related ADRs]
+
+## Task
+Implement the following specific task:
+[Paste WRK-TASK content]
+
+Ensure the implementation:
+- Respects all domain rules from the DOM specs
+- Follows architecture patterns from ARCH specs
+- Passes the acceptance criteria from the WRK-SPEC</code></pre>
+
+        <h4>Prompt Template &mdash; Code Review with Specs</h4>
+<pre><code>## Code to review
+[Paste or reference the code]
+
+## Specs this code should satisfy
+[Paste relevant DOM, ARCH, FEAT specs]
+
+## Question
+Does this code correctly implement the specs?
+Are there any domain rules being violated?
+Are there architecture patterns not being followed?
+What acceptance criteria pass/fail?</code></pre>
+
+        <h3>Block 4: Hands-on Exercise (30 min)</h3>
+        <p>In pairs:</p>
+        <ol>
+            <li>Pick a feature from the backlog (real or recent)</li>
+            <li>Write a WRK-SPEC with <code>activates</code> pointing to existing knowledge specs</li>
+            <li>Run <code>spec-graph context &lt;WRK-SPEC-ID&gt; --depth 2</code> to see the activation bundle</li>
+            <li>Feed the bundle to an AI agent and ask for an implementation plan</li>
+            <li>Compare: does the plan respect domain rules? Follow architecture patterns?</li>
+        </ol>
+
+        <h2>Coaching (1-2h)</h2>
+        <ol>
+            <li>Take a real feature/task from the current sprint</li>
+            <li>Write WRK-SPEC with <code>activates</code> pointing to relevant specs</li>
+            <li>Decompose into WRK-PLAN + 2-3 WRK-TASKs</li>
+            <li>Execute activation + agent flow for at least 1 WRK-TASK</li>
+            <li>Review: does the generated code align with specs?</li>
+        </ol>
+
+        <div class="pillars">
+            <div class="pillar">
+                <h4>Brownfield Extra</h4>
+                <p>Activation reveals gaps: specs that should exist but haven't been written. Document as spec backlog.</p>
+            </div>
+            <div class="pillar">
+                <h4>Greenfield Extra</h4>
+                <p>Use the activation bundle directly for generation. Compare agent output with and without activated specs.</p>
+            </div>
+        </div>
+
+        <h2>Autonomous Work</h2>
+        <ul>
+            <li>Each member implements 1 task using spec-as-prompt: activation bundle &rarr; agent &rarr; code &rarr; validate against acceptance criteria</li>
+            <li>Refine specs based on what the agent "needed" and didn't find</li>
+            <li>Write 1-2 new specs revealed as necessary during practice</li>
+        </ul>
+
+        <div class="exec-block" style="border-radius: 12px; margin-top: 2rem;">
+            <h3>Anti-pattern</h3>
+            <div class="exec-highlight">Don't feed the agent everything &mdash; select relevant specs. A bundle of 20 specs produces diffuse code; a bundle of 3-5 focused specs produces precise, aligned implementations.</div>
+        </div>
+
+        <h2>Week 3 Deliverables</h2>
+        <table>
+            <thead>
+                <tr><th>Criterion</th><th>Minimum</th><th>Desirable</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Feature with WRK-SPEC written</td><td>1</td><td>2+</td></tr>
+                <tr><td>WRK-PLAN + WRK-TASKs created</td><td>1 plan + 2 tasks</td><td>1 plan + 4+ tasks</td></tr>
+                <tr><td>Activation + agent flow executed</td><td>1 task</td><td>3+ tasks</td></tr>
+                <tr><td>Prompt templates documented</td><td>2 (implement + review)</td><td>3+</td></tr>
+                <tr><td>Specs refined after agent practice</td><td>2</td><td>5+</td></tr>
+            </tbody>
+        </table>
+
+    </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SECTION 05 — WEEK 4 -->
+<!-- ============================================================ -->
+<section id="sec-5" class="section">
+    <div class="section-header fade-in">
+        <span class="section-number">05</span>
+        <div>
+            <div class="section-title">Week 4 &mdash; Consolidate</div>
+            <div class="section-subtitle">Metrics, quality, and sustainability</div>
+        </div>
+    </div>
+    <div class="content fade-in fade-in-delay-1">
+
+        <div class="overview">
+            <div class="overview-label">Objective</div>
+            <p class="overview-text">Establish a metrics baseline, practice the consolidation cycle, and define how the team will continue growing knowledge autonomously.</p>
+        </div>
+
+        <h2>Workshop (2h)</h2>
+
+        <h3>Block 1: The Consolidation Cycle (30 min)</h3>
+        <p>The <strong>Evolutive</strong> pillar in action: how every delivery returns knowledge to the base.</p>
+
+        <div class="flow-diagram">
+Standards &rarr; Adapt &rarr; Execute &amp; Validate &rarr; Consolidate &rarr; Standards (updated)
+        </div>
+
+        <p>After completing a WRK-SPEC:</p>
+        <ol>
+            <li>Were undocumented domain rules discovered? &rarr; Create/update DOM specs</li>
+            <li>Were architecture decisions made? &rarr; Write ADR</li>
+            <li>Were reusable patterns identified? &rarr; Create ARCH or FEAT specs</li>
+            <li>Did any constraint change? &rarr; Update existing spec + version bump</li>
+            <li>Can confidence be raised? &rarr; LOW&rarr;MEDIUM&rarr;HIGH based on validation</li>
+        </ol>
+
+        <blockquote><p>The <strong>consolidation checklist</strong> makes this systematic, not ad-hoc.</p></blockquote>
+
+        <h3>Block 2: RULE Specs &mdash; "How We Work" Codified (15 min)</h3>
+        <p>Examples:</p>
+        <ul>
+            <li>"Every new feature requires a WRK-SPEC with <code>activates</code> before implementation"</li>
+            <li>"Every architecture change requires an ADR"</li>
+            <li>"Specs are reviewed in PRs like code"</li>
+            <li>"Confidence level is updated after production validation"</li>
+        </ul>
+
+        <h3>Block 3: Adoption Metrics (25 min)</h3>
+        <p>Four metrics to measure whether knowledge is working for the team:</p>
+
+        <table>
+            <thead>
+                <tr><th>Metric</th><th>What It Measures</th><th>How to Measure</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Spec Coverage</td><td>% of active features/rules with a corresponding spec</td><td>Cross-reference backlog with spec repository</td></tr>
+                <tr><td>Agent Alignment</td><td>Quality of agent output with specs vs without</td><td>Qualitative team evaluation</td></tr>
+                <tr><td>Consolidation Rate</td><td>% of deliveries that produce spec updates</td><td>Count WRK-SPECs with completed consolidation</td></tr>
+                <tr><td>Decision Documentation</td><td>% of architecture decisions with an ADR</td><td>Count ADRs vs known decisions</td></tr>
+            </tbody>
+        </table>
+
+        <blockquote><p>Precision is not required: informed team estimates are sufficient to establish a baseline.</p></blockquote>
+
+        <h3>Block 4: Roadmap and Sustainability (30 min)</h3>
+
+        <h4>What Already Works (consolidate)</h4>
+        <ul>
+            <li>Writing specs as part of the development workflow</li>
+            <li>Using activation + agent for feature implementation</li>
+            <li>Consolidating after each significant delivery</li>
+            <li>Reviewing specs periodically</li>
+        </ul>
+
+        <h4>What Comes Next (roadmap)</h4>
+        <table>
+            <thead>
+                <tr><th>Horizon</th><th>Focus</th><th>Capabilities</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Month 2-3</td><td>CI integration</td><td><code>spec-graph validate</code> in pipelines, orphan detection, graph publishing</td></tr>
+                <tr><td>Month 3-5</td><td>Code generation pipelines</td><td>Specs as input for automated generation, generated artifacts linked to specs</td></tr>
+                <tr><td>Month 5+</td><td>Full agent orchestration</td><td>Automated activation pipeline, semi-automatic consolidation, RFC&rarr;SPEC&rarr;ADR integrated</td></tr>
+            </tbody>
+        </table>
+
+        <h4>Program Retrospective (facilitated)</h4>
+        <ul>
+            <li>Which specs were most useful for development?</li>
+            <li>Where is the biggest knowledge gap?</li>
+            <li>Is the consolidation cycle sustainable?</li>
+            <li>Do the agent prompts need improvement?</li>
+        </ul>
+
+        <h2>Coaching (1-2h)</h2>
+        <ol>
+            <li><strong>Measure baseline</strong>: current state of the 4 metrics</li>
+            <li><strong>Full graph review</strong>: resolve all gaps, orphans, broken dependencies</li>
+            <li><strong>Write 2-3 ADRs</strong> for decisions made during the program</li>
+            <li><strong>Codify 2-3 RULEs</strong> the team has adopted</li>
+            <li><strong>Plan month 2</strong>: which specs are missing? what to automate first?</li>
+        </ol>
+
+        <h2>Autonomous Work</h2>
+        <ul>
+            <li>Document metrics baseline</li>
+            <li>Identify 1-2 champions who will lead continued adoption</li>
+            <li>Schedule <strong>weekly spec review</strong> (30 min) as part of the workflow</li>
+            <li>Complete pending specs</li>
+            <li>Retrospective as ADR</li>
+        </ul>
+
+        <div class="exec-block" style="border-radius: 12px; margin-top: 2rem;">
+            <h3>Anti-pattern</h3>
+            <div class="exec-highlight">Don't over-engineer specs before validating &mdash; start with low/medium confidence and let production validation raise them. Perfectionism kills adoption.</div>
+        </div>
+
+        <h2>Week 4 Deliverables</h2>
+        <table>
+            <thead>
+                <tr><th>Criterion</th><th>Minimum</th><th>Desirable</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Metrics baseline documented</td><td>&#x2713;</td><td>&#x2713;</td></tr>
+                <tr><td>ADRs written</td><td>2</td><td>3+</td></tr>
+                <tr><td>RULE specs created</td><td>2</td><td>3+</td></tr>
+                <tr><td>Clean graph (validate without errors)</td><td>&#x2713;</td><td>&#x2713;</td></tr>
+                <tr><td>Confidence levels reviewed</td><td>&#x2713;</td><td>&#x2713;</td></tr>
+                <tr><td>Month 2 roadmap defined</td><td>&#x2713;</td><td>&#x2713;</td></tr>
+                <tr><td>Champions identified</td><td>1</td><td>2</td></tr>
+                <tr><td>Weekly spec review scheduled</td><td>&#x2713;</td><td>&#x2713;</td></tr>
+                <tr><td>Total specs accumulated</td><td>15</td><td>25+</td></tr>
+            </tbody>
+        </table>
+
+    </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SECTION 06 — SUMMARY TABLE -->
+<!-- ============================================================ -->
+<section id="sec-6" class="section alt">
+    <div class="section-header fade-in">
+        <span class="section-number">06</span>
+        <div>
+            <div class="section-title">Summary Table</div>
+            <div class="section-subtitle">Greenfield vs Brownfield by week</div>
+        </div>
+    </div>
+    <div class="content fade-in fade-in-delay-1">
+
+        <table>
+            <thead>
+                <tr><th>Week</th><th>Greenfield</th><th>Brownfield</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>1</td><td>Foundational ARCH + DOM of the domain</td><td>DOM for critical rules (the ones that cause bugs)</td></tr>
+                <tr><td>2</td><td>Foundational ADRs, design-time dependencies</td><td>Retroactive ADRs, discover implicit dependencies</td></tr>
+                <tr><td>3</td><td>Activation bundle as direct input for generation</td><td>Activation reveals knowledge gaps</td></tr>
+                <tr><td>4</td><td>Clean baseline + accelerate toward generation</td><td>Complete coverage + close gaps</td></tr>
+            </tbody>
+        </table>
+
+    </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SECTION 07 — REFERENCE MATERIAL -->
+<!-- ============================================================ -->
+<section id="sec-7" class="section">
+    <div class="section-header fade-in">
+        <span class="section-number">07</span>
+        <div>
+            <div class="section-title">Reference Material</div>
+            <div class="section-subtitle">Framework docs, guides, and CLI commands</div>
+        </div>
+    </div>
+    <div class="content fade-in fade-in-delay-1">
+
+        <h2>KDD Framework</h2>
+        <table>
+            <thead>
+                <tr><th>Document</th><th>Content</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code>foundation/manifesto.md</code></td><td>Why KDD</td></tr>
+                <tr><td><code>foundation/pillars.md</code></td><td>Three pillars: Spec-Driven, Evolutive, Agentic</td></tr>
+                <tr><td><code>knowledge-architecture/spec-anatomy.md</code></td><td>Standard spec anatomy</td></tr>
+                <tr><td><code>knowledge-architecture/spec-types.md</code></td><td>Artifact types and lifecycle</td></tr>
+                <tr><td><code>docs/getting-started.md</code></td><td>First spec in 10 minutes</td></tr>
+            </tbody>
+        </table>
+
+        <h2>Guides</h2>
+        <table>
+            <thead>
+                <tr><th>Document</th><th>Content</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code>docs/guides/create-knowledge-spec.md</code></td><td>Creating knowledge specs</td></tr>
+                <tr><td><code>docs/guides/create-work-spec.md</code></td><td>WRK-SPEC &rarr; WRK-PLAN &rarr; WRK-TASK</td></tr>
+                <tr><td><code>docs/guides/contextual-activation.md</code></td><td>Activation pipeline (4 steps)</td></tr>
+                <tr><td><code>docs/guides/governance-cycle.md</code></td><td>RFC &rarr; SPEC &rarr; ADR</td></tr>
+                <tr><td><code>docs/guides/consolidation.md</code></td><td>Work&rarr;Knowledge consolidation</td></tr>
+                <tr><td><code>docs/patterns/spec-as-prompt.md</code></td><td>Specs as context for agents</td></tr>
+                <tr><td><code>docs/patterns/brownfield-adoption.md</code></td><td>Adopting KDD in existing projects</td></tr>
+            </tbody>
+        </table>
+
+        <h2>Tools &mdash; spec-graph CLI</h2>
+        <table>
+            <thead>
+                <tr><th>Command</th><th>Purpose</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code>spec-graph validate</code></td><td>Validate graph integrity</td></tr>
+                <tr><td><code>spec-graph stats</code></td><td>Graph statistics</td></tr>
+                <tr><td><code>spec-graph build --html</code></td><td>Interactive visualization</td></tr>
+                <tr><td><code>spec-graph context &lt;id&gt; --depth N</code></td><td>Contextual activation bundle</td></tr>
+                <tr><td><code>spec-graph impact &lt;id&gt;</code></td><td>Transitive impact analysis</td></tr>
+                <tr><td><code>spec-graph orphans</code></td><td>Detect specs without connections</td></tr>
+            </tbody>
+        </table>
+
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+    <h2>Knowledge-Driven Development</h2>
+    <p>SDLC Adoption Program &mdash; NFQ Advisory &mdash; 2026</p>
+</footer>
+
+<!-- SCRIPTS -->
+<script>
+// Sticky Nav
+(function(){
+    var nav = document.getElementById('sticky-nav');
+    var sections = ['sec-1','sec-2','sec-3','sec-4','sec-5','sec-6','sec-7'];
+    var navLinks = {};
+    nav.querySelectorAll('a[data-nav]').forEach(function(a){
+        navLinks[a.getAttribute('data-nav')] = a;
+    });
+    var coverEnd = 0;
+    var ticking = false;
+    function onScroll() {
+        if (ticking) return;
+        ticking = true;
+        requestAnimationFrame(function(){
+            ticking = false;
+            var scrollY = window.scrollY || window.pageYOffset;
+            if (!coverEnd) {
+                var cover = document.querySelector('.cover');
+                if (cover) coverEnd = cover.offsetTop + cover.offsetHeight;
+            }
+            if (scrollY > coverEnd - 60) nav.classList.add('visible');
+            else nav.classList.remove('visible');
+            var current = '';
+            for (var i = sections.length - 1; i >= 0; i--) {
+                var el = document.getElementById(sections[i]);
+                if (el && scrollY >= el.offsetTop - 120) { current = sections[i]; break; }
+            }
+            sections.forEach(function(id){
+                if (navLinks[id]) {
+                    if (id === current) navLinks[id].classList.add('active');
+                    else navLinks[id].classList.remove('active');
+                }
+            });
+        });
+    }
+    window.addEventListener('scroll', onScroll, {passive: true});
+    onScroll();
+})();
+
+// Smooth Scroll
+(function(){
+    document.querySelectorAll('a[href^="#"]').forEach(function(a){
+        a.addEventListener('click', function(e){
+            e.preventDefault();
+            var t = document.querySelector(a.getAttribute('href'));
+            if(t) t.scrollIntoView({behavior:'smooth'});
+        });
+    });
+})();
+
+// Fade-in
+(function(){
+    var observer = new IntersectionObserver(function(entries){
+        entries.forEach(function(entry){
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+    document.querySelectorAll('.fade-in').forEach(function(el){ observer.observe(el); });
+})();
+</script>
+
+<script>
+(function() {
+    var CLIENT_ID = "605248850504-ho9henin8ssfmcblljocrn0ak0jua49h.apps.googleusercontent.com";
+    var ALLOWED_DOMAINS = ["nfq.es", "nter.es", "nfq.mx", "nfq.com.br"];
+    var SESSION_KEY = "kdd_auth";
+    var LOG_ENDPOINT = "https://script.google.com/macros/s/AKfycbx42FyRhBeErzd74a286wsV6CvOOq4xZQk1PFFhIQ-aDqPNGE16cBRsKOR0Ldy9zwbz4w/exec";
+    var DOC_NAME = (location.pathname.replace(/^\//, '').replace(/\.html$/, '') || 'index');
+
+    function isAllowed(email) {
+        return ALLOWED_DOMAINS.some(function(d) { return email.endsWith('@' + d); });
+    }
+
+    function grantAccess() {
+        document.getElementById('auth-gate').style.display = 'none';
+    }
+
+    function showError(msg) {
+        var el = document.getElementById('auth-gate-error');
+        el.textContent = msg;
+        el.style.display = 'block';
+    }
+
+    // Check existing session
+    try {
+        var session = JSON.parse(sessionStorage.getItem(SESSION_KEY));
+        if (session && session.email && isAllowed(session.email) && session.exp > Date.now()) {
+            grantAccess();
+            return; // Already authenticated, skip GIS init
+        }
+    } catch(e) {}
+
+    // Google Identity Services callback
+    window.__onGoogleSignIn = function(response) {
+        // Decode JWT payload (base64url)
+        try {
+            var payload = JSON.parse(atob(response.credential.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));
+            if (payload.email && isAllowed(payload.email)) {
+                sessionStorage.setItem(SESSION_KEY, JSON.stringify({
+                    email: payload.email,
+                    name: payload.name,
+                    exp: Date.now() + 8 * 60 * 60 * 1000 // 8 hours
+                }));
+                try {
+                    fetch(LOG_ENDPOINT, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify({ idToken: response.credential, doc: DOC_NAME })
+                    }).catch(function() {});
+                } catch(e) {}
+                grantAccess();
+            } else {
+                showError('Access denied. Only corporate accounts (@nfq.es, @nter.es, @nfq.mx, @nfq.com.br) are allowed.');
+            }
+        } catch(e) {
+            showError('Authentication error. Please try again.');
+        }
+    };
+
+    // Render Google Sign-In button (no hosted_domain to allow both domains)
+    google.accounts.id.initialize({
+        client_id: CLIENT_ID,
+        callback: window.__onGoogleSignIn,
+        ux_mode: 'popup'
+    });
+    google.accounts.id.renderButton(
+        document.getElementById('auth-gate-btn'),
+        { theme: 'filled_blue', size: 'large', shape: 'pill', text: 'signin_with', width: 280 }
+    );
+})();
+</script>
+
+</body>
+</html>

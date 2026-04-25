@@ -1,0 +1,15 @@
+{
+  "name": "@kdd-toolkit/spec-graph",
+  "version": "0.2.0",
+  "type": "module",
+  "bin": {
+    "spec-graph": "./spec-graph.mjs"
+  },
+  "scripts": {
+    "spec-graph": "node spec-graph.mjs"
+  },
+  "dependencies": {
+    "commander": "^13.1.0",
+    "gray-matter": "^4.0.3"
+  }
+}

@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KDD Documentation Portal</title>
+
+    <!-- Google Identity Services -->
+    <script src="https://accounts.google.com/gsi/client"></script>
+
+    <style>
+        :root {
+            --nfq-dark: #100D25;
+            --nfq-orange: #EC683E;
+            --nfq-blue: #217BEE;
+            --nfq-pink: #D13B5F;
+            --nfq-grey: #595959;
+            --nfq-light-grey: #F5F5F5;
+            --nfq-white: #FFFFFF;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            color: var(--nfq-dark);
+            background: var(--nfq-white);
+            line-height: 1.6;
+        }
+
+        /* Auth gate uses inline styles */
+
+        /* === LOGO === */
+        .logo svg { height: 100%; width: auto; }
+
+        /* === HEADER === */
+        .header {
+            background: var(--nfq-dark);
+            color: var(--nfq-white);
+            padding: 4rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%; right: -15%;
+            width: 500px; height: 500px;
+            border-radius: 50%;
+            background: var(--nfq-orange);
+            opacity: 0.08;
+        }
+        .header .logo-header { height: 50px; margin-bottom: 2.5rem; }
+        .header .label {
+            font-size: 0.85rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--nfq-orange);
+            margin-bottom: 0.75rem;
+        }
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 1rem;
+        }
+        .header .subtitle {
+            font-size: 1.15rem;
+            color: rgba(255,255,255,0.5);
+            max-width: 550px;
+        }
+
+        /* === USER BAR === */
+        .user-bar {
+            background: var(--nfq-light-grey);
+            padding: 0.75rem 4rem;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 1rem;
+            font-size: 0.85rem;
+            color: var(--nfq-grey);
+        }
+        .user-bar .user-email { font-weight: 600; color: var(--nfq-dark); }
+        .user-bar button {
+            background: none; border: none;
+            color: var(--nfq-orange); font-size: 0.85rem;
+            font-weight: 600; cursor: pointer; font-family: inherit;
+        }
+        .user-bar button:hover { text-decoration: underline; }
+
+        /* === DIVIDER === */
+        .divider { height: 4px; background: linear-gradient(90deg, var(--nfq-orange), var(--nfq-pink), var(--nfq-blue)); }
+
+        /* === DOCS GRID === */
+        .docs-section {
+            padding: 4rem;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+        .docs-section h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        .docs-section .section-desc {
+            color: var(--nfq-grey);
+            margin-bottom: 2.5rem;
+            font-size: 1rem;
+        }
+
+        .doc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+        }
+        .doc-card {
+            background: var(--nfq-white);
+            border: 1px solid #E8E8E8;
+            border-radius: 12px;
+            padding: 2rem;
+            text-decoration: none;
+            color: inherit;
+            transition: box-shadow 0.2s, border-color 0.2s, transform 0.2s;
+            display: flex;
+            flex-direction: column;
+        }
+        .doc-card:hover {
+            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+            border-color: var(--nfq-orange);
+            transform: translateY(-2px);
+        }
+        .doc-card .badge {
+            display: inline-block;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            padding: 0.25rem 0.6rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+            width: fit-content;
+        }
+        .doc-card .badge.strategic { background: rgba(33,123,238,0.1); color: var(--nfq-blue); }
+        .doc-card .badge.operational { background: rgba(236,104,62,0.1); color: var(--nfq-orange); }
+        .doc-card .badge.comparative { background: rgba(209,59,95,0.1); color: var(--nfq-pink); }
+        .doc-card .badge.technical { background: rgba(89,89,89,0.1); color: var(--nfq-grey); }
+        .doc-card .badge.program { background: rgba(34,139,94,0.1); color: #228B5E; }
+        .doc-card .badge.commercial { background: rgba(156,39,176,0.1); color: #9C27B0; }
+        .doc-card .badge.external { background: rgba(33,123,238,0.1); color: var(--nfq-blue); }
+        .doc-card h3 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            line-height: 1.3;
+        }
+        .doc-card p {
+            font-size: 0.9rem;
+            color: var(--nfq-grey);
+            line-height: 1.5;
+            flex: 1;
+        }
+        .doc-card .card-footer {
+            margin-top: 1.25rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--nfq-orange);
+        }
+
+        /* === FOOTER === */
+        .footer {
+            text-align: center;
+            padding: 3rem 2rem;
+            background: var(--nfq-dark);
+            color: rgba(255,255,255,0.4);
+            font-size: 0.85rem;
+        }
+
+        /* === RESPONSIVE === */
+        @media (max-width: 768px) {
+            .header { padding: 2.5rem 1.5rem; }
+            .header h1 { font-size: 2.2rem; }
+            .docs-section { padding: 2.5rem 1.5rem; }
+            .doc-grid { grid-template-columns: 1fr; }
+            .user-bar { padding: 0.75rem 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- SVG DEFS -->
+<svg xmlns="http://www.w3.org/2000/svg" style="position:absolute;width:0;height:0;overflow:hidden">
+    <symbol id="nfq-white" viewBox="0 0 312.29 145.88">
+        <defs>
+            <linearGradient id="wg1" x1="16.08" y1="4553.95" x2="16.08" y2="4644.91" gradientTransform="translate(0 4667.61) scale(1 -1)" gradientUnits="userSpaceOnUse">
+                <stop offset=".25" stop-color="#ec683e"/><stop offset="1" stop-color="#d13b5f"/>
+            </linearGradient>
+            <linearGradient id="wg2" x1="16.08" y1="4584.43" x2="16.08" y2="4660.83" gradientTransform="translate(0 4667.61) scale(1 -1)" gradientUnits="userSpaceOnUse">
+                <stop offset="0" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000"/>
+            </linearGradient>
+            <linearGradient id="wg3" x1="14.82" y1="4649.54" x2="81.61" y2="4552.17" gradientTransform="translate(0 4667.61) scale(1 -1)" gradientUnits="userSpaceOnUse">
+                <stop offset=".25" stop-color="#d13b5f"/><stop offset="1" stop-color="#217bee"/>
+            </linearGradient>
+            <linearGradient id="wg4" x1="46.31" y1="4603.85" x2="80.07" y2="4550.73" gradientTransform="translate(0 4667.61) scale(1 -1)" gradientUnits="userSpaceOnUse">
+                <stop offset="0" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000"/>
+            </linearGradient>
+            <clipPath id="wclip"><rect x=".17" y="6.44" width="96.46" height="120"/></clipPath>
+        </defs>
+        <g clip-path="url(#wclip)">
+            <path fill="url(#wg1)" d="M32.16,108.22L0,126.78V25.34L32.15,6.78v101.44Z"/>
+            <path fill="url(#wg2)" fill-opacity=".3" d="M32.16,108.22L0,126.78V25.34L32.15,6.78v101.44Z"/>
+            <path fill="url(#wg3)" d="M96.46,108.22l-32.16,18.56L0,25.34,32.15,6.78l64.31,101.44Z"/>
+            <path fill="url(#wg4)" fill-opacity=".2" d="M96.46,108.22l-32.16,18.56L0,25.34,32.15,6.78l64.31,101.44Z"/>
+            <path fill="#217bee" d="M96.46,108.22l-32.16,18.56V25.34L96.46,6.78v101.44Z"/>
+        </g>
+        <path fill="#fff" d="M312.01,35.56l-17.64,12.6c-3.92-8.54-12.46-13.16-21.28-13.16-13.58,0-28,10.92-28,35.42s13.02,35.56,26.18,35.56c10.08,0,20.3-6.86,24.92-20.3v60.2h16.1V35.56h-.28ZM296.19,70.98c-.14,18.06-8.68,27.02-17.22,27.02s-17.22-9.1-17.22-27.58c0-20.02,9.1-29.68,17.92-29.68,8.26,0,16.38,8.54,16.52,24.64v5.6Z"/>
+        <path fill="#fff" d="M251.33,19.46c-11.06-10.5-18.62-15.68-22.82-15.68-2.94,0-4.34,2.38-4.34,7.14v25.62h21.98v3.08h-21.98v64.82h-16.24V39.62h-9.8v-3.08h9.8v-1.54c0-27.86,13.72-35,28.56-35,5.04,0,10.22.84,14.98,1.96l-.14,17.5Z"/>
+        <path fill="#fff" d="M146.41,51.24c5.88-11.2,15.12-16.24,23.94-16.24,12.46,0,24.08,9.94,24.08,26.04v43.4h-16.1v-40.32c0-14.84-6.72-22.12-14.42-22.12-6.16,0-13.16,4.9-17.5,14.42v48.02h-16.1V38.92l15.82-3.36h.28v15.68Z"/>
+    </symbol>
+</svg>
+
+<!-- Auth Gate -->
+<div id="auth-gate" style="position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--nfq-dark);color:#fff;text-align:center;padding:2rem;">
+    <h2 style="font-size:1.5rem;margin-bottom:0.5rem;">KDD Documentation</h2>
+    <p style="color:rgba(255,255,255,0.5);font-size:0.95rem;margin-bottom:2rem;">Sign in with your corporate account to continue</p>
+    <div id="auth-gate-btn"></div>
+    <p id="auth-gate-error" style="color:var(--nfq-pink);font-size:0.85rem;margin-top:1rem;display:none;"></p>
+</div>
+
+<!-- Page Content -->
+<header class="header">
+    <div class="logo-header logo"><svg viewBox="0 0 312.29 145.88"><use href="#nfq-white"/></svg></div>
+    <div class="label">Knowledge-Driven Development</div>
+    <h1>Documentation Portal</h1>
+    <p class="subtitle">Internal documentation for the KDD framework. Strategic foundations, operational guides, and technical references.</p>
+</header>
+
+<div class="divider"></div>
+
+<div class="user-bar">
+    <span>Signed in as <span class="user-email" id="user-email"></span></span>
+    <button onclick="sessionStorage.removeItem('kdd_auth'); location.reload();">Sign out</button>
+</div>
+
+<main class="docs-section">
+    <h2>Available Documents</h2>
+    <p class="section-desc">Select a document to view. All documents follow the NFQ corporate visual style and can be exported to PDF.</p>
+
+    <div class="doc-grid">
+
+        <a href="./kdd-foundation" class="doc-card">
+            <span class="badge strategic">Strategic</span>
+            <h3>Strategic Foundation</h3>
+            <p>The why, the pillars, and the design principles behind Knowledge-Driven Development. Manifesto, three pillars, and four design principles.</p>
+            <div class="card-footer">View document &rarr;</div>
+        </a>
+
+        <a href="./kdd-operational" class="doc-card">
+            <span class="badge operational">Operational</span>
+            <h3>Operational Documentation</h3>
+            <p>Guides, reference, and patterns for teams adopting KDD. From your first spec to full agentic orchestration.</p>
+            <div class="card-footer">View document &rarr;</div>
+        </a>
+
+        <a href="./spec-graph-vs-vector-db" class="doc-card">
+            <span class="badge comparative">Comparative</span>
+            <h3>Spec Graph vs Vector DB</h3>
+            <p>Comparative analysis of knowledge graph approaches versus vector database approaches for specification management.</p>
+            <div class="card-footer">View document &rarr;</div>
+        </a>
+
+        <a href="./anatomy-coding-agent" class="doc-card">
+            <span class="badge technical">Technical</span>
+            <h3>Anatomy of a Coding Agent</h3>
+            <p>How coding agents work, why all platforms converge on the same architecture, and why structured knowledge is the real differentiator.</p>
+            <div class="card-footer">View document &rarr;</div>
+        </a>
+
+    </div>
+
+    <h2 style="margin-top:3rem;">Commercial Approach</h2>
+    <p class="section-desc">Client-facing narratives and positioning materials.</p>
+
+    <div class="doc-grid">
+
+        <a href="./ai-4-sdlc" class="doc-card">
+            <span class="badge commercial">Commercial</span>
+            <h3>AI 4 Software Delivery Life Cycle</h3>
+            <p>How AI transforms the Software Delivery Life Cycle. End-to-end view across requirements, design, coding, testing, and operations.</p>
+            <div class="card-footer">View document &rarr;</div>
+        </a>
+
+    </div>
+
+    <h2 style="margin-top:3rem;">Adoption Programs</h2>
+    <p class="section-desc">4-week guided programs for teams adopting KDD. Each includes weekly workshops, coaching sessions, and hands-on exercises.</p>
+
+    <div class="doc-grid">
+
+        <a href="./kdd-adoption-ams" class="doc-card">
+            <span class="badge program">Program</span>
+            <h3>KDD for AMS</h3>
+            <p>Application Maintenance Services. From known errors and runbooks to agent-assisted incident resolution and evolutive planning.</p>
+            <div class="card-footer">View program &rarr;</div>
+        </a>
+
+        <a href="./kdd-adoption-sdlc" class="doc-card">
+            <span class="badge program">Program</span>
+            <h3>KDD for SDLC</h3>
+            <p>Software Delivery. From domain rules and architecture decisions to agent-assisted feature development and code generation.</p>
+            <div class="card-footer">View program &rarr;</div>
+        </a>
+
+    </div>
+
+    <h2 style="margin-top:3rem;">Related Links</h2>
+    <p class="section-desc">External resources and references.</p>
+
+    <div class="doc-grid">
+        <!-- @related-links@ -->
+    </div>
+</main>
+
+<footer class="footer">
+    Knowledge-Driven Development &mdash; NFQ &mdash; Q2 2026
+</footer>
+
+<!-- Auth -->
+<script>
+(function() {
+    var CLIENT_ID = "605248850504-ho9henin8ssfmcblljocrn0ak0jua49h.apps.googleusercontent.com";
+    var ALLOWED_DOMAINS = ["nfq.es", "nter.es", "nfq.mx", "nfq.com.br"];
+    var SESSION_KEY = "kdd_auth";
+    var LOG_ENDPOINT = "https://script.google.com/macros/s/AKfycbx42FyRhBeErzd74a286wsV6CvOOq4xZQk1PFFhIQ-aDqPNGE16cBRsKOR0Ldy9zwbz4w/exec";
+    var DOC_NAME = "index";
+
+    function isAllowed(email) {
+        return ALLOWED_DOMAINS.some(function(d) { return email.endsWith('@' + d); });
+    }
+
+    function grantAccess(email) {
+        document.getElementById('auth-gate').style.display = 'none';
+        document.getElementById('user-email').textContent = email;
+    }
+
+    function showError(msg) {
+        var el = document.getElementById('auth-gate-error');
+        el.textContent = msg;
+        el.style.display = 'block';
+    }
+
+    // Check existing session
+    try {
+        var session = JSON.parse(sessionStorage.getItem(SESSION_KEY));
+        if (session && session.email && isAllowed(session.email) && session.exp > Date.now()) {
+            grantAccess(session.email);
+            return;
+        }
+    } catch(e) {}
+
+    // Google Identity Services callback
+    window.__onGoogleSignIn = function(response) {
+        try {
+            var payload = JSON.parse(atob(response.credential.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));
+            if (payload.email && isAllowed(payload.email)) {
+                sessionStorage.setItem(SESSION_KEY, JSON.stringify({
+                    email: payload.email,
+                    name: payload.name,
+                    exp: Date.now() + 8 * 60 * 60 * 1000
+                }));
+                try {
+                    fetch(LOG_ENDPOINT, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify({ idToken: response.credential, doc: DOC_NAME })
+                    }).catch(function() {});
+                } catch(e) {}
+                grantAccess(payload.email);
+            } else {
+                showError('Access denied. Only corporate accounts (@nfq.es, @nter.es, @nfq.mx, @nfq.com.br) are allowed.');
+            }
+        } catch(e) {
+            showError('Authentication error. Please try again.');
+        }
+    };
+
+    google.accounts.id.initialize({
+        client_id: CLIENT_ID,
+        callback: window.__onGoogleSignIn,
+        ux_mode: 'popup'
+    });
+    google.accounts.id.renderButton(
+        document.getElementById('auth-gate-btn'),
+        { theme: 'filled_blue', size: 'large', shape: 'pill', text: 'signin_with', width: 280 }
+    );
+})();
+</script>
+
+</body>
+</html>

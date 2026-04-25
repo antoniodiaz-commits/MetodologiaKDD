@@ -1,0 +1,16 @@
+{
+  "hosting": {
+    "target": "kdd-docs",
+    "public": "public",
+    "ignore": ["firebase.json", ".firebaserc", "deploy.sh", "auth-snippet.html"],
+    "headers": [
+      {
+        "source": "**/*.html",
+        "headers": [
+          { "key": "Cache-Control", "value": "public, max-age=3600" }
+        ]
+      }
+    ],
+    "cleanUrls": true
+  }
+}

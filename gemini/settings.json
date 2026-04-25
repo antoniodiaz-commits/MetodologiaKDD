@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node *spec-graph*)",
+      "Bash(npx spec-graph*)"
+    ]
+  }
+}

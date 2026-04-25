@@ -1,0 +1,1706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KDD Adoption Program — Application Maintenance Services</title>
+    <style>
+        /* === CORPORATE BASE === */
+        :root {
+            --nfq-dark: #100D25;
+            --nfq-orange: #EC683E;
+            --nfq-blue: #217BEE;
+            --nfq-pink: #D13B5F;
+            --nfq-grey: #595959;
+            --nfq-light-grey: #F5F5F5;
+            --nfq-white: #FFFFFF;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            color: var(--nfq-dark);
+            background: var(--nfq-white);
+            line-height: 1.6;
+        }
+
+        /* === LOGO === */
+        .logo { display: inline-block; }
+        .logo svg { height: 100%; width: auto; }
+        .logo-cover { position: absolute; top: 3rem; left: 4rem; height: 65px; }
+
+        /* === COVER === */
+        .cover {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 4rem;
+            background: var(--nfq-dark);
+            color: var(--nfq-white);
+            position: relative;
+            overflow: hidden;
+        }
+        .cover::before {
+            content: '';
+            position: absolute;
+            top: -40%; right: -20%;
+            width: 600px; height: 600px;
+            border-radius: 50%;
+            background: var(--nfq-orange);
+            opacity: 0.1;
+        }
+        .cover .label {
+            font-size: 1rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--nfq-orange);
+            margin-bottom: 1rem;
+        }
+        .cover h1 {
+            font-size: 4.5rem;
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+        }
+        .cover .subtitle {
+            font-size: 1.3rem;
+            color: rgba(255,255,255,0.6);
+            max-width: 600px;
+        }
+        .cover .year {
+            position: absolute;
+            bottom: 3rem; right: 4rem;
+            font-size: 1.1rem;
+            color: rgba(255,255,255,0.4);
+        }
+
+        /* === STICKY NAV === */
+        .sticky-nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 900;
+            background: rgba(16,13,37,0.95);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            padding: 0 2rem;
+            height: 48px;
+            transform: translateY(-100%);
+            transition: transform 0.3s ease;
+            gap: 0.25rem;
+        }
+        .sticky-nav.visible { transform: translateY(0); }
+        .sticky-nav a {
+            color: rgba(255,255,255,0.5);
+            text-decoration: none;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            padding: 0.45rem 0.6rem;
+            border-radius: 4px;
+            transition: color 0.2s, background 0.2s;
+            white-space: nowrap;
+        }
+        .sticky-nav a:hover { color: var(--nfq-white); background: rgba(255,255,255,0.08); }
+        .sticky-nav a.active { color: var(--nfq-orange); background: rgba(236,104,62,0.12); }
+        .sticky-nav .nav-logo { height: 22px; margin-right: 1rem; flex-shrink: 0; }
+        .sticky-nav .nav-logo svg { height: 100%; width: auto; }
+        .sticky-nav .nav-spacer { flex: 1; }
+        .sticky-nav .nav-actions { display: flex; gap: 0.5rem; align-items: center; }
+        .sticky-nav .nav-btn {
+            background: none;
+            border: 1px solid rgba(255,255,255,0.15);
+            color: rgba(255,255,255,0.6);
+            font-family: inherit;
+            font-size: 0.72rem;
+            font-weight: 600;
+            padding: 0.3rem 0.7rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .sticky-nav .nav-btn:hover { border-color: var(--nfq-orange); color: var(--nfq-white); }
+
+        /* === SECTIONS === */
+        .section {
+            padding: 5rem 4rem;
+            max-width: 100%;
+        }
+        .section.alt { background: var(--nfq-light-grey); }
+
+        .section-header {
+            display: flex;
+            align-items: baseline;
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+        .section-number {
+            font-size: 2.8rem;
+            font-weight: 700;
+            color: var(--nfq-orange);
+            white-space: nowrap;
+        }
+        .section-title {
+            font-size: 2.8rem;
+            font-weight: 700;
+        }
+        .section-subtitle {
+            font-size: 1.25rem;
+            color: var(--nfq-grey);
+            margin-top: 0.25rem;
+        }
+
+        /* === CONTENT TYPOGRAPHY === */
+        .content { max-width: 900px; }
+        .content h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin: 2.5rem 0 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--nfq-light-grey);
+        }
+        .section.alt .content h2 { border-bottom-color: #E0E0E0; }
+        .content h3 {
+            font-size: 1.35rem;
+            font-weight: 700;
+            margin: 2rem 0 0.75rem;
+        }
+        .content h4 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin: 1.5rem 0 0.5rem;
+        }
+        .content p {
+            font-size: 1rem;
+            color: var(--nfq-grey);
+            margin-bottom: 1rem;
+            line-height: 1.7;
+        }
+        .content ul, .content ol {
+            margin: 0.75rem 0 1.25rem 1.5rem;
+            color: var(--nfq-grey);
+        }
+        .content li {
+            margin-bottom: 0.4rem;
+            line-height: 1.6;
+        }
+        .content strong { color: var(--nfq-dark); }
+        .content em { font-style: italic; }
+        .content blockquote {
+            border-left: 3px solid var(--nfq-orange);
+            padding: 0.75rem 1.25rem;
+            margin: 1.25rem 0;
+            background: rgba(236,104,62,0.04);
+            border-radius: 0 8px 8px 0;
+        }
+        .content blockquote p { margin-bottom: 0; font-size: 0.95rem; }
+
+        /* === TABLES === */
+        .content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.25rem 0 1.5rem;
+            font-size: 0.9rem;
+        }
+        .content thead th {
+            text-align: left;
+            padding: 0.7rem 1rem;
+            font-weight: 700;
+            color: var(--nfq-grey);
+            border-bottom: 2px solid #E8E8E8;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .content tbody td {
+            padding: 0.7rem 1rem;
+            border-bottom: 1px solid #F0F0F0;
+            color: var(--nfq-grey);
+            vertical-align: top;
+        }
+        .content tbody td:first-child { font-weight: 600; color: var(--nfq-dark); }
+        .content tbody tr:hover { background: rgba(236,104,62,0.02); }
+
+        /* === CODE BLOCKS === */
+        .content pre {
+            background: #1a1730;
+            color: #e0dfe6;
+            border-radius: 8px;
+            padding: 1.25rem 1.5rem;
+            overflow-x: auto;
+            margin: 1rem 0 1.5rem;
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+        .content code {
+            font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', Consolas, monospace;
+            font-size: 0.88em;
+        }
+        .content p code, .content li code, .content td code {
+            background: rgba(236,104,62,0.08);
+            color: var(--nfq-orange);
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.85em;
+        }
+
+        /* === FLOW DIAGRAM === */
+        .flow-diagram {
+            background: var(--nfq-light-grey);
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 1.5rem 0;
+            text-align: center;
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-size: 0.95rem;
+            color: var(--nfq-dark);
+            line-height: 2;
+        }
+        .section.alt .flow-diagram { background: var(--nfq-white); }
+
+        /* === OVERVIEW CARD === */
+        .overview {
+            background: var(--nfq-light-grey);
+            border-radius: 12px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+        }
+        .section.alt .overview { background: var(--nfq-white); }
+        .overview-label {
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--nfq-orange);
+            margin-bottom: 0.75rem;
+        }
+        .overview-text {
+            font-size: 1.1rem;
+            color: var(--nfq-grey);
+            max-width: 700px;
+            line-height: 1.7;
+        }
+
+        /* === PILLARS === */
+        .pillars {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+        .pillar {
+            border-left: 3px solid var(--nfq-orange);
+            padding-left: 1rem;
+        }
+        .pillar h4 { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.25rem; }
+        .pillar p { font-size: 0.95rem; color: var(--nfq-grey); margin: 0; }
+
+        /* === INSIGHT CARDS === */
+        .insights-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+        .insight-card {
+            background: var(--nfq-white);
+            border-radius: 12px;
+            padding: 1.8rem;
+            border-left: 4px solid var(--nfq-orange);
+            box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+        }
+        .section:not(.alt) .insight-card { background: var(--nfq-light-grey); }
+        .insight-card h5 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .insight-card p { font-size: 0.9rem; color: var(--nfq-grey); line-height: 1.5; margin: 0; }
+        .insight-card.info { border-left-color: var(--nfq-blue); }
+        .insight-card.alert { border-left-color: var(--nfq-pink); }
+
+        /* === KPI ROW === */
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0 2rem;
+        }
+        .kpi-card {
+            background: var(--nfq-white);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+        }
+        .section:not(.alt) .kpi-card { background: var(--nfq-light-grey); }
+        .kpi-card .kpi-value { font-size: 2rem; font-weight: 700; color: var(--nfq-dark); }
+        .kpi-card .kpi-label { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--nfq-grey); margin-top: 0.3rem; }
+
+        /* === EXEC BLOCK === */
+        .exec-block {
+            padding: 3rem 4rem;
+            background: var(--nfq-dark);
+            color: rgba(255,255,255,0.85);
+        }
+        .exec-block h3 { font-size: 1.8rem; font-weight: 700; color: var(--nfq-white); margin-bottom: 1.5rem; }
+        .exec-block p { font-size: 1rem; line-height: 1.7; margin-bottom: 1rem; }
+        .exec-highlight {
+            border-left: 3px solid var(--nfq-orange);
+            padding-left: 1rem;
+            margin: 1.5rem 0;
+            font-size: 1.05rem;
+            color: var(--nfq-white);
+            font-weight: 600;
+        }
+
+        /* === DIVIDER === */
+        .divider { height: 4px; background: linear-gradient(90deg, var(--nfq-orange), var(--nfq-pink), var(--nfq-blue)); }
+
+        /* === TOC === */
+        .toc {
+            padding: 5rem 4rem;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .toc h2 { font-size: 2.8rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .toc .toc-sub { font-size: 1.1rem; color: var(--nfq-grey); margin-bottom: 3rem; }
+        .toc ol { list-style: none; padding: 0; margin: 0; }
+        .toc li { border-top: 1px solid #E8E8E8; }
+        .toc li:last-child { border-bottom: 1px solid #E8E8E8; }
+        .toc a {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            padding: 1.1rem 0.5rem;
+            text-decoration: none;
+            color: var(--nfq-dark);
+            transition: background .15s;
+        }
+        .toc a:hover { background: rgba(236,104,62,0.03); }
+        .toc .toc-num { font-size: 1.4rem; font-weight: 700; color: var(--nfq-orange); min-width: 40px; }
+        .toc .toc-title { font-size: 1.15rem; font-weight: 600; }
+        .toc .toc-desc { font-size: 0.9rem; color: var(--nfq-grey); margin-left: auto; }
+        .toc .toc-group {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--nfq-orange);
+            padding: 1.5rem 0.5rem 0.3rem;
+            border-top: 1px solid #E8E8E8;
+        }
+
+        /* === FOOTER === */
+        .footer {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: var(--nfq-dark);
+            color: var(--nfq-white);
+        }
+        .footer h2 { font-size: 2.5rem; }
+        .footer p { color: rgba(255,255,255,0.5); margin-top: 0.5rem; }
+
+        /* === FADE-IN === */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+        .fade-in.visible { opacity: 1; transform: translateY(0); }
+        .fade-in-delay-1 { transition-delay: 0.1s; }
+        .fade-in-delay-2 { transition-delay: 0.2s; }
+
+        /* === PRINT === */
+        @media print {
+            .cover { min-height: auto; padding: 2rem; page-break-after: always; }
+            .toc { min-height: auto; page-break-after: always; }
+            .section { padding: 2rem; page-break-before: always; }
+            .footer { page-break-before: always; }
+            .sticky-nav { display: none !important; }
+            .fade-in { opacity: 1 !important; transform: none !important; }
+            * { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+            @page { margin-bottom: 2cm; }
+        }
+
+        /* === RESPONSIVE === */
+        @media (max-width: 768px) {
+            .cover, .section { padding: 2.5rem 1.5rem; }
+            .cover h1 { font-size: 2.8rem; }
+            .section-title { font-size: 2rem; }
+            .section-number { font-size: 2rem; }
+            .toc { padding: 2.5rem 1.5rem; }
+            .toc .toc-desc { display: none; }
+            .pillars { grid-template-columns: 1fr; }
+            .insights-row { grid-template-columns: 1fr; }
+            .kpi-row { grid-template-columns: repeat(2, 1fr); }
+            .exec-block { padding: 2.5rem 1.5rem; }
+            .sticky-nav { padding: 0 0.75rem; }
+            .sticky-nav a { font-size: 0.65rem; padding: 0.4rem 0.4rem; }
+        }
+    </style>
+</head>
+<script src="https://accounts.google.com/gsi/client"></script>
+<body>
+<div id="auth-gate" style="position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#100D25;color:#fff;font-family:Arial,Helvetica,sans-serif;text-align:center;padding:2rem;">
+    <h2 style="font-size:1.5rem;margin-bottom:0.5rem;">KDD Documentation</h2>
+    <p style="color:rgba(255,255,255,0.5);font-size:0.95rem;margin-bottom:2rem;">Sign in with your corporate account to continue</p>
+    <div id="auth-gate-btn"></div>
+    <p id="auth-gate-error" style="color:#D13B5F;font-size:0.85rem;margin-top:1rem;display:none;"></p>
+</div>
+
+<!-- SVG DEFS -->
+<svg xmlns="http://www.w3.org/2000/svg" style="position:absolute;width:0;height:0;overflow:hidden">
+    <symbol id="nfq-white" viewBox="0 0 312.29 145.88">
+        <defs>
+            <linearGradient id="wg1" x1="16.08" y1="4553.95" x2="16.08" y2="4644.91" gradientTransform="translate(0 4667.61) scale(1 -1)" gradientUnits="userSpaceOnUse">
+                <stop offset=".25" stop-color="#ec683e"/><stop offset="1" stop-color="#d13b5f"/>
+            </linearGradient>
+            <linearGradient id="wg2" x1="16.08" y1="4584.43" x2="16.08" y2="4660.83" gradientTransform="translate(0 4667.61) scale(1 -1)" gradientUnits="userSpaceOnUse">
+                <stop offset="0" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000"/>
+            </linearGradient>
+            <linearGradient id="wg3" x1="14.82" y1="4649.54" x2="81.61" y2="4552.17" gradientTransform="translate(0 4667.61) scale(1 -1)" gradientUnits="userSpaceOnUse">
+                <stop offset=".25" stop-color="#d13b5f"/><stop offset="1" stop-color="#217bee"/>
+            </linearGradient>
+            <linearGradient id="wg4" x1="46.31" y1="4603.85" x2="80.07" y2="4550.73" gradientTransform="translate(0 4667.61) scale(1 -1)" gradientUnits="userSpaceOnUse">
+                <stop offset="0" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000"/>
+            </linearGradient>
+            <clipPath id="wclip"><rect x=".17" y="6.44" width="96.46" height="120"/></clipPath>
+        </defs>
+        <g clip-path="url(#wclip)">
+            <path fill="url(#wg1)" d="M32.16,108.22L0,126.78V25.34L32.15,6.78v101.44Z"/>
+            <path fill="url(#wg2)" fill-opacity=".3" d="M32.16,108.22L0,126.78V25.34L32.15,6.78v101.44Z"/>
+            <path fill="url(#wg3)" d="M96.46,108.22l-32.16,18.56L0,25.34,32.15,6.78l64.31,101.44Z"/>
+            <path fill="url(#wg4)" fill-opacity=".2" d="M96.46,108.22l-32.16,18.56L0,25.34,32.15,6.78l64.31,101.44Z"/>
+            <path fill="#217bee" d="M96.46,108.22l-32.16,18.56V25.34L96.46,6.78v101.44Z"/>
+        </g>
+        <path fill="#fff" d="M312.01,35.56l-17.64,12.6c-3.92-8.54-12.46-13.16-21.28-13.16-13.58,0-28,10.92-28,35.42s13.02,35.56,26.18,35.56c10.08,0,20.3-6.86,24.92-20.3v60.2h16.1V35.56h-.28ZM296.19,70.98c-.14,18.06-8.68,27.02-17.22,27.02s-17.22-9.1-17.22-27.58c0-20.02,9.1-29.68,17.92-29.68,8.26,0,16.38,8.54,16.52,24.64v5.6Z"/>
+        <path fill="#fff" d="M251.33,19.46c-11.06-10.5-18.62-15.68-22.82-15.68-2.94,0-4.34,2.38-4.34,7.14v25.62h21.98v3.08h-21.98v64.82h-16.24V39.62h-9.8v-3.08h9.8v-1.54c0-27.86,13.72-35,28.56-35,5.04,0,10.22.84,14.98,1.96l-.14,17.5Z"/>
+        <path fill="#fff" d="M146.41,51.24c5.88-11.2,15.12-16.24,23.94-16.24,12.46,0,24.08,9.94,24.08,26.04v43.4h-16.1v-40.32c0-14.84-6.72-22.12-14.42-22.12-6.16,0-13.16,4.9-17.5,14.42v48.02h-16.1V38.92l15.82-3.36h.28v15.68Z"/>
+    </symbol>
+</svg>
+
+<!-- STICKY NAV -->
+<nav class="sticky-nav" id="sticky-nav">
+    <div class="nav-logo"><svg viewBox="0 0 312.29 145.88"><use href="#nfq-white"/></svg></div>
+    <a href="#sec-1" data-nav="sec-1">Framing</a>
+    <a href="#sec-2" data-nav="sec-2">Week 1</a>
+    <a href="#sec-3" data-nav="sec-3">Week 2</a>
+    <a href="#sec-4" data-nav="sec-4">Week 3</a>
+    <a href="#sec-5" data-nav="sec-5">Week 4</a>
+    <a href="#sec-6" data-nav="sec-6">Summary</a>
+    <a href="#sec-7" data-nav="sec-7">Reference</a>
+    <div class="nav-spacer"></div>
+    <div class="nav-actions">
+        <button class="nav-btn" onclick="window.print()" title="Export to PDF">PDF &#x2197;</button>
+    </div>
+</nav>
+
+<!-- COVER -->
+<section class="cover">
+    <div class="logo logo-cover"><svg viewBox="0 0 312.29 145.88"><use href="#nfq-white"/></svg></div>
+    <div class="label">Knowledge-Driven Development</div>
+    <h1>AMS Adoption<br>Program</h1>
+    <p class="subtitle">4-week program for maintenance teams. From first spec to agent-assisted operations.</p>
+    <span class="year">2026</span>
+</section>
+
+<!-- TOC -->
+<nav class="toc">
+    <h2>Contents</h2>
+    <p class="toc-sub">4 weeks from first spec to agent-assisted operations</p>
+    <ol>
+        <li class="toc-group">Program Design</li>
+        <li><a href="#sec-1"><span class="toc-num">01</span><span class="toc-title">Framing</span><span class="toc-desc">Objective, workstreams, audience, prerequisites, tools</span></a></li>
+
+        <li class="toc-group">Weekly Program</li>
+        <li><a href="#sec-2"><span class="toc-num">02</span><span class="toc-title">Week 1 &mdash; Foundations</span><span class="toc-desc">Taxonomy, anatomy, and first specs</span></a></li>
+        <li><a href="#sec-3"><span class="toc-num">03</span><span class="toc-title">Week 2 &mdash; The Graph</span><span class="toc-desc">Relationships, WRK-INC, and consolidation</span></a></li>
+        <li><a href="#sec-4"><span class="toc-num">04</span><span class="toc-title">Week 3 &mdash; Activation</span><span class="toc-desc">Specs as context for agents</span></a></li>
+        <li><a href="#sec-5"><span class="toc-num">05</span><span class="toc-title">Week 4 &mdash; Consolidate</span><span class="toc-desc">Quality, metrics, and sustainability</span></a></li>
+
+        <li class="toc-group">Reference</li>
+        <li><a href="#sec-6"><span class="toc-num">06</span><span class="toc-title">Summary Table</span><span class="toc-desc">New service vs consolidated service</span></a></li>
+        <li><a href="#sec-7"><span class="toc-num">07</span><span class="toc-title">Reference Material</span><span class="toc-desc">Framework docs, guides, and tools</span></a></li>
+    </ol>
+</nav>
+
+<div class="divider"></div>
+
+<!-- ============================================================ -->
+<!-- SECTION 01 — FRAMING -->
+<!-- ============================================================ -->
+<section id="sec-1" class="section">
+    <div class="section-header fade-in">
+        <span class="section-number">01</span>
+        <div>
+            <div class="section-title">Framing</div>
+            <div class="section-subtitle">Program objective, workstreams, audience, prerequisites, and tools</div>
+        </div>
+    </div>
+    <div class="content fade-in fade-in-delay-1">
+
+        <div class="overview">
+            <div class="overview-label">Program Objective</div>
+            <p class="overview-text">The maintenance team <strong>gets familiar with the KDD methodology, understands its value, and starts applying it</strong> on their real service. Over 4 weeks, the team understands, practices, experiences, and adopts structured knowledge.</p>
+        </div>
+
+        <div class="kpi-row">
+            <div class="kpi-card">
+                <div class="kpi-value">4</div>
+                <div class="kpi-label">Weeks</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">2h</div>
+                <div class="kpi-label">Workshop / week</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">1-2h</div>
+                <div class="kpi-label">Coaching / week</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">5-7h</div>
+                <div class="kpi-label">Total / week</div>
+            </div>
+        </div>
+
+        <div class="pillars">
+            <div class="pillar">
+                <h4>Week 1: Write specs</h4>
+                <p>The team captures what it knows</p>
+            </div>
+            <div class="pillar">
+                <h4>Week 2: Connect specs</h4>
+                <p>The graph takes shape, relationships provide context</p>
+            </div>
+            <div class="pillar">
+                <h4>Week 3: Activate specs + agent</h4>
+                <p>Knowledge works for the team (ops + evolutives)</p>
+            </div>
+            <div class="pillar">
+                <h4>Week 4: Consolidate + sustain</h4>
+                <p>Knowledge grows with every incident and every evolutive</p>
+            </div>
+        </div>
+
+        <h2>AMS Workstreams</h2>
+        <p>A maintenance service has two workstreams. KDD covers both &mdash; and the taxonomy bridges them.</p>
+
+        <table>
+            <thead><tr><th>Workstream</th><th>What the team does</th><th>How KDD helps</th></tr></thead>
+            <tbody>
+                <tr><td>Operations</td><td>Resolve incidents, execute runbooks, diagnose</td><td>OPS-KE, OPS-RUN, WRK-INC &rarr; activation + agent for resolution</td></tr>
+                <tr><td>Evolutives</td><td>Develop improvements, new features, changes</td><td>Full taxonomy as context (ARCH, DOM, OPS-KE, FEAT, ADR) &rarr; WRK-SPEC &rarr; WRK-PLAN &rarr; WRK-TASK</td></tr>
+            </tbody>
+        </table>
+
+        <blockquote><p>The knowledge captured during operations directly feeds the context for evolutive development, and vice versa. An evolutive that changes architecture updates the same ARCH specs used for incident resolution.</p></blockquote>
+
+        <h2>Audience</h2>
+        <table>
+            <thead><tr><th>Role</th><th>Program role</th></tr></thead>
+            <tbody>
+                <tr><td>Service Manager</td><td>Champion, end-to-end vision, leads governance</td></tr>
+                <tr><td>L2/L3 Engineer</td><td>Writes OPS-KE/OPS-RUN, handles complex resolutions</td></tr>
+                <tr><td>L1 Operator</td><td>Contributes runbooks, first user of agent-assisted resolution</td></tr>
+                <tr><td>Incident Manager</td><td>Validates post-mortems, ensures consolidation</td></tr>
+            </tbody>
+        </table>
+        <p><strong>Recommended size</strong>: 4-8 people.</p>
+
+        <h2>New Service vs Consolidated Service</h2>
+        <table>
+            <thead><tr><th>Aspect</th><th>New service</th><th>Consolidated service</th></tr></thead>
+            <tbody>
+                <tr><td>Starting point</td><td>Transition; no internal documentation</td><td>Tacit knowledge accumulated</td></tr>
+                <tr><td>First focus</td><td>OPS-RUN for critical procedures + ARCH</td><td>OPS-KE for recurring incidents</td></tr>
+                <tr><td>Data source</td><td>Outgoing team, code, inherited docs</td><td>Ticketing system, post-mortems, experience</td></tr>
+                <tr><td>Risk</td><td>Copying docs without validating against reality</td><td>"We already know this, why document?"</td></tr>
+                <tr><td>Quick win</td><td>First runbook as spec from day 1</td><td>Codify the incident that consumes the most time</td></tr>
+            </tbody>
+        </table>
+
+        <h2>Prerequisites</h2>
+
+        <h3>Required reading</h3>
+        <table>
+            <thead><tr><th>Resource</th><th>What it covers</th><th>Time</th></tr></thead>
+            <tbody>
+                <tr><td><a href="https://kdd-docs.web.app/kdd-foundation" style="color:var(--nfq-blue);">KDD Strategic Foundation</a></td><td>Why KDD exists: the manifesto, three pillars, four design principles</td><td>30 min</td></tr>
+                <tr><td><a href="https://kdd-docs.web.app/kdd-operational" style="color:var(--nfq-blue);">KDD Operational Documentation</a></td><td>How to use KDD: guides, reference, patterns</td><td>45 min</td></tr>
+                <tr><td><a href="https://kdd-docs.web.app/anatomy-coding-agent" style="color:var(--nfq-blue);">Anatomy of a Coding Agent</a></td><td>How AI coding agents work internally</td><td>20 min</td></tr>
+            </tbody>
+        </table>
+
+        <h3>Introductory AI courses (choose one)</h3>
+        <table>
+            <thead><tr><th>Course</th><th>Platform</th><th>Time</th></tr></thead>
+            <tbody>
+                <tr><td>Claude for Developers</td><td>Anthropic</td><td>1-2h</td></tr>
+                <tr><td>Gemini API Quickstart</td><td>Google</td><td>1-2h</td></tr>
+                <tr><td>GitHub Copilot Fundamentals</td><td>Microsoft Learn</td><td>1-2h</td></tr>
+            </tbody>
+        </table>
+
+        <blockquote><p>The goal is not mastery &mdash; it's having a baseline understanding of what AI tools can do, so the program can focus on <strong>how to use them with structured knowledge</strong>.</p></blockquote>
+
+        <h3>Technical setup</h3>
+        <ul>
+            <li>Git repository accessible to all participants</li>
+            <li>Permissions to create directories and PRs</li>
+            <li>Node.js 18+ (for spec-graph CLI)</li>
+            <li>Access to at least one AI tool (Claude Code, Cursor, Copilot, etc.)</li>
+            <li>Access to the ticketing system (Jira, ServiceNow, etc.) for incident history extraction</li>
+        </ul>
+
+        <h2>Tools</h2>
+        <table>
+            <thead><tr><th>Tool</th><th>Purpose</th><th>When</th></tr></thead>
+            <tbody>
+                <tr><td>Git + Markdown editor</td><td>Write and version specs</td><td>From week 1</td></tr>
+                <tr><td>spec-graph CLI</td><td>Validate, navigate, activate context</td><td>From week 1</td></tr>
+                <tr><td>AI agent (Claude Code, Cursor, Copilot, etc.)</td><td>Assisted resolution with specs as context</td><td>From week 3</td></tr>
+            </tbody>
+        </table>
+
+    </div>
+</section>
+
+
+<!-- ============================================================ -->
+<!-- SECTION 02 — WEEK 1 -->
+<!-- ============================================================ -->
+<section id="sec-2" class="section alt">
+    <div class="section-header fade-in">
+        <span class="section-number">02</span>
+        <div>
+            <div class="section-title">Week 1 &mdash; Foundations</div>
+            <div class="section-subtitle">Taxonomy, anatomy, and first specs</div>
+        </div>
+    </div>
+    <div class="content fade-in fade-in-delay-1">
+
+        <div class="overview">
+            <div class="overview-label">Objective</div>
+            <p class="overview-text">The team understands the KDD framework, masters spec structure, and writes their first OPS-KE and OPS-RUN on their real service.</p>
+        </div>
+
+        <h2>Workshop (2h)</h2>
+
+        <h3>Block 1: Why KDD for maintenance (20 min)</h3>
+        <p>Four failure patterns in teams without a knowledge methodology:</p>
+
+        <div class="insights-row">
+            <div class="insight-card alert">
+                <h5>Tribal knowledge</h5>
+                <p>Critical knowledge resides in 1-2 people. When they rotate, the team goes blind.</p>
+            </div>
+            <div class="insight-card alert">
+                <h5>Repetitive firefighting</h5>
+                <p>Same incidents resolved over and over without documenting root cause.</p>
+            </div>
+            <div class="insight-card alert">
+                <h5>Blind handover</h5>
+                <p>Service transition based on static docs that don't reflect operational reality.</p>
+            </div>
+            <div class="insight-card alert">
+                <h5>Reactive-only</h5>
+                <p>All time consumed by incidents. No capacity for prevention.</p>
+            </div>
+        </div>
+
+        <blockquote><p>The solution: <strong>specifications as a universal interface</strong> &mdash; the artifact that survives team changes, scales knowledge across shifts, and enables humans and AI agents to operate with the same context.</p></blockquote>
+
+        <h3>Block 2: KDD Taxonomy &mdash; Three artifact axes (20 min)</h3>
+
+        <table>
+            <thead><tr><th>Axis</th><th>Nature</th><th>AMS examples</th><th>Persists?</th></tr></thead>
+            <tbody>
+                <tr><td>Knowledge</td><td>What the organization knows</td><td>OPS-KE, OPS-RUN, ARCH</td><td>Yes &mdash; grows with every project</td></tr>
+                <tr><td>Work</td><td>What the team is doing now</td><td>WRK-INC (incidents)</td><td>No &mdash; scoped to a concrete event</td></tr>
+                <tr><td>Governance</td><td>How knowledge evolves</td><td>ADR (decisions), RULE (constraints)</td><td>Yes &mdash; bridges Knowledge and Work</td></tr>
+            </tbody>
+        </table>
+
+        <h4>Spec types for AMS</h4>
+        <table>
+            <thead><tr><th>Type</th><th>ID</th><th>Axis</th><th>What it captures</th><th>When to create</th></tr></thead>
+            <tbody>
+                <tr><td>Known Error</td><td><code>OPS-KE</code></td><td>Knowledge</td><td>Failure pattern: symptoms, root cause, resolution, prevention</td><td>When a failure recurs or is high-impact</td></tr>
+                <tr><td>Runbook</td><td><code>OPS-RUN</code></td><td>Knowledge</td><td>Operational procedure: trigger, steps, validation, rollback</td><td>When a procedure is executed more than once</td></tr>
+                <tr><td>Architecture</td><td><code>ARCH</code></td><td>Knowledge</td><td>System map: components, dependencies, integrations</td><td>When onboarding a service or documenting a system</td></tr>
+                <tr><td>Incident</td><td><code>WRK-INC</code></td><td>Work</td><td>Concrete incident: what happened, which OPS-KE it activated</td><td>When resolving a P1/P2 incident</td></tr>
+                <tr><td>Decision Record</td><td><code>ADR</code></td><td>Governance</td><td>Decision with context and rationale</td><td>After a post-mortem or relevant operational change</td></tr>
+                <tr><td>Rule</td><td><code>RULE</code></td><td>Governance</td><td>Permanent constraint</td><td>When a practice becomes a norm</td></tr>
+            </tbody>
+        </table>
+
+        <blockquote><p><strong>Heuristic:</strong> Is it a recurring failure pattern? &rarr; <code>OPS-KE</code>. Is it a step-by-step procedure? &rarr; <code>OPS-RUN</code>. Did it just happen? &rarr; <code>WRK-INC</code>. Is it a decision we made? &rarr; <code>ADR</code>.</p></blockquote>
+
+        <h3>Block 3: Spec anatomy (30 min)</h3>
+        <p>Every spec has two parts: <strong>YAML frontmatter</strong> (machine-readable metadata) + <strong>Markdown body</strong> (human-readable content).</p>
+
+        <h4>Frontmatter &mdash; required fields</h4>
+<pre><code>---
+id: OPS-KE-PAYMENTS-001          # Unique identifier: TYPE-AREA-NNN
+type: knowledge                   # knowledge | work | governance
+layer: operations                 # operations | architecture | domain | ...
+title: Payment API timeout due to exhausted connection pool
+status: draft                     # draft &rarr; active &rarr; deprecated
+confidence: medium                # low | medium | high
+version: "0.1.0"
+owner: maintenance-team
+domain: payments
+tags: [timeout, connection-pool, payments]
+dependencies:
+  - id: ARCH-PAYMENTS-001
+    type: constrained-by          # constrained-by | implements | extends | resolves-with
+---</code></pre>
+
+        <h4>Body &mdash; structure by type</h4>
+        <table>
+            <thead><tr><th>Type</th><th>Required sections</th></tr></thead>
+            <tbody>
+                <tr><td>OPS-KE</td><td>Symptoms, Root Cause, Diagnosis, Resolution (immediate + definitive), Prevention, Occurrence Count</td></tr>
+                <tr><td>OPS-RUN</td><td>Trigger, Prerequisites, Steps, Validation, Rollback</td></tr>
+                <tr><td>ARCH</td><td>Overview, Components, Dependencies, Integration Points</td></tr>
+                <tr><td>WRK-INC</td><td>Description, Timeline, Resolution, Consolidation (checklist)</td></tr>
+            </tbody>
+        </table>
+
+        <h4>Dependencies &mdash; how specs connect</h4>
+        <table>
+            <thead><tr><th>Relation</th><th>Meaning</th><th>Example</th></tr></thead>
+            <tbody>
+                <tr><td><code>constrained-by</code></td><td>Must respect constraints from another spec</td><td>OPS-KE constrained-by ARCH</td></tr>
+                <tr><td><code>resolves-with</code></td><td>Resolved by executing another artifact</td><td>OPS-KE resolves-with OPS-RUN</td></tr>
+                <tr><td><code>activates</code></td><td>Activates knowledge for a task</td><td>WRK-INC activates OPS-KE</td></tr>
+                <tr><td><code>mitigated-by</code></td><td>Mitigated by a procedure</td><td>WRK-INC mitigated-by OPS-RUN</td></tr>
+                <tr><td><code>extends</code></td><td>Adds detail to another spec at the same level</td><td>OPS-KE-002 extends OPS-KE-001</td></tr>
+            </tbody>
+        </table>
+
+        <h3>Block 4: Live demo + spec-graph (30 min)</h3>
+        <p>Write an OPS-KE + OPS-RUN live from a real incident reported by the team.</p>
+
+        <h4>OPS-KE example</h4>
+<pre><code>---
+id: OPS-KE-PAYMENTS-001
+type: knowledge
+layer: operations
+title: Payment API timeout due to exhausted connection pool
+status: draft
+confidence: medium
+version: "0.1.0"
+owner: maintenance-team
+domain: payments
+tags: [timeout, connection-pool, payments]
+dependencies:
+  - id: ARCH-PAYMENTS-001
+    type: constrained-by
+  - id: OPS-RUN-PAYMENTS-001
+    type: resolves-with
+---
+
+## Symptoms
+- HTTP 504 Gateway Timeout on `/api/payments/*` endpoints
+- Logs: `Connection pool exhausted, waiting for available connection`
+- Metric: `db.pool.active_connections` > 95% of max
+
+## Root Cause
+Connection pool exhausted during concurrent transaction peaks (>500 TPS).
+Pool configured with max_connections=50, insufficient for peak load.
+
+## Diagnosis
+1. Check `db.pool.active_connections` in Grafana
+2. Check logs: `grep "pool exhausted" /var/log/payments.log`
+3. Verify load: `select count(*) from pg_stat_activity`
+
+## Resolution
+### Immediate
+Restart service &rarr; execute OPS-RUN-PAYMENTS-001
+
+### Definitive
+Increase `max_connections` to 100 in `application.yml`
+
+## Prevention
+- Alert on `db.pool.active_connections > 80%`
+- Quarterly pool sizing review
+
+## Occurrence Count
+3 (last 6 months)</code></pre>
+
+        <h4>First spec-graph commands</h4>
+<pre><code>spec-graph validate          # Any errors in the specs?
+spec-graph stats             # How many specs do we have? What types?</code></pre>
+
+        <h3>Block 5: Guided exercise (10 min)</h3>
+        <p>Each participant identifies 1 recurring incident from their area and writes the complete YAML frontmatter for an OPS-KE (frontmatter only, body during autonomous work).</p>
+
+        <h2>Coaching (1-2h)</h2>
+
+        <h3>New service</h3>
+        <ol>
+            <li>Identify the 3-5 most critical operational procedures (those executed during transition)</li>
+            <li>Write an OPS-RUN for each</li>
+            <li>Create 2-3 ARCH specs for systems and dependencies</li>
+        </ol>
+
+        <h3>Consolidated service</h3>
+        <ol>
+            <li>Query ticketing system: filter by frequency and resolution time</li>
+            <li>Identify top 5 recurring incidents</li>
+            <li>Write an OPS-KE for each pattern</li>
+        </ol>
+
+        <h3>Both</h3>
+        <ul>
+            <li>Complete frontmatter, <code>confidence: low</code> or <code>medium</code> (be honest at the start)</li>
+            <li>Declare dependencies between specs (OPS-KE &rarr; OPS-RUN, OPS-KE &rarr; ARCH)</li>
+            <li><code>spec-graph validate</code> when done</li>
+        </ul>
+
+        <h2>Autonomous work</h2>
+        <ul>
+            <li>Each member writes 1-2 specs from their area</li>
+        </ul>
+        <p>Repository setup:</p>
+<pre><code>specs/
+├── known-errors/    # OPS-KE &mdash; failure patterns
+├── runbooks/        # OPS-RUN &mdash; procedures
+├── architecture/    # ARCH &mdash; system maps
+└── incidents/       # WRK-INC (from week 2)</code></pre>
+
+        <h2>Week 1 deliverables</h2>
+        <table>
+            <thead><tr><th>Criterion</th><th>Minimum</th><th>Desirable</th></tr></thead>
+            <tbody>
+                <tr><td><code>specs/</code> directory created</td><td>&check;</td><td>&check;</td></tr>
+                <tr><td>OPS-KE written</td><td>3</td><td>5+</td></tr>
+                <tr><td>OPS-RUN written</td><td>2</td><td>3+</td></tr>
+                <tr><td>Dependencies declared</td><td>&check;</td><td>&check;</td></tr>
+                <tr><td><code>spec-graph validate</code> executed</td><td>&check;</td><td>&check;</td></tr>
+                <tr><td>Team aligned on taxonomy and anatomy</td><td>&check;</td><td>&check;</td></tr>
+            </tbody>
+        </table>
+
+    </div>
+</section>
+
+
+<!-- ============================================================ -->
+<!-- SECTION 03 — WEEK 2 -->
+<!-- ============================================================ -->
+<section id="sec-3" class="section">
+    <div class="section-header fade-in">
+        <span class="section-number">03</span>
+        <div>
+            <div class="section-title">Week 2 &mdash; The Graph</div>
+            <div class="section-subtitle">Relationships, WRK-INC, and consolidation</div>
+        </div>
+    </div>
+    <div class="content fade-in fade-in-delay-1">
+
+        <div class="overview">
+            <div class="overview-label">Objective</div>
+            <p class="overview-text">The team connects specs into a navigable graph, codifies incidents as WRK-INC, and practices the Work&rarr;Knowledge consolidation cycle.</p>
+        </div>
+
+        <h2>Workshop (2h)</h2>
+
+        <h3>Block 1: The knowledge graph (30 min)</h3>
+        <p>Individual specs have value, but exponential value is in the <strong>relationships</strong>. An isolated OPS-KE is documentation; an OPS-KE connected to its OPS-RUN, its ARCH, and its WRK-INCs is <strong>activatable knowledge</strong>.</p>
+
+        <div class="flow-diagram">
+ARCH-PAYMENTS-001 (system)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;│<br>
+&nbsp;&nbsp;&nbsp;&nbsp;├── constrained-by ──&rarr; OPS-KE-PAYMENTS-001 (timeout due to pool)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│<br>
+&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── resolves-with ──&rarr; OPS-RUN-PAYMENTS-001 (restart)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│<br>
+&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── activates &larr;── WRK-INC-001 (incident 03/15)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WRK-INC-007 (incident 04/22)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;│<br>
+&nbsp;&nbsp;&nbsp;&nbsp;└── constrained-by ──&rarr; OPS-KE-PAYMENTS-002 (out of memory)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── resolves-with ──&rarr; OPS-RUN-PAYMENTS-003 (restart + heap)
+        </div>
+
+        <h4>spec-graph commands to navigate the graph</h4>
+<pre><code>spec-graph build --html              # Interactive graph visualization
+spec-graph context OPS-KE-PAYMENTS-001 --depth 2   # What's connected to this OPS-KE?
+spec-graph impact OPS-KE-PAYMENTS-001               # What's affected if this OPS-KE changes?
+spec-graph orphans                                   # Specs without connections (suspicious)</code></pre>
+
+        <h3>Block 2: WRK-INC &mdash; The incident as a work artifact (30 min)</h3>
+        <p>WRK-INC connects the <strong>work world</strong> (what just happened) with the <strong>knowledge world</strong> (what we know).</p>
+
+<pre><code>---
+id: WRK-INC-001
+type: work
+layer: incident
+title: "P1 2026-03-15: Massive timeout on payments service"
+status: resolved
+created: 2026-03-15
+resolved: 2026-03-15
+owner: l2-engineer
+activates:
+  - OPS-KE-PAYMENTS-001
+mitigated-by:
+  - OPS-RUN-PAYMENTS-001
+---
+
+## Description
+Generalized timeout on payments service between 14:30 and 15:15 UTC.
+
+## Timeline
+- 14:30 &mdash; Timeout alert triggered
+- 14:35 &mdash; Symptoms matched to OPS-KE-PAYMENTS-001
+- 14:40 &mdash; Executed OPS-RUN-PAYMENTS-001 (restart)
+- 14:45 &mdash; Service restored
+- 15:15 &mdash; Confirmed stable
+
+## Resolution
+Service restart (immediate resolution).
+Definitive resolution pending: connection pool resize.
+
+## Consolidation
+- [x] OPS-KE-PAYMENTS-001: occurrence_count 2&rarr;3
+- [x] ADR-OPS-001: Decided to prioritize pool resize
+- [ ] OPS-KE-PAYMENTS-001: confidence medium&rarr;high (validated in production)</code></pre>
+
+        <p><strong>Key relationships</strong>: <code>activates</code> &rarr; which OPS-KE describes the failure pattern. <code>mitigated-by</code> &rarr; which OPS-RUN was executed.</p>
+
+        <h3>Block 3: The consolidation cycle (45 min)</h3>
+        <p>Every incident is a learning opportunity. Consolidation transforms <strong>work</strong> into <strong>knowledge</strong>:</p>
+
+        <div class="flow-diagram">
+Incident &rarr; Resolution &rarr; Consolidate &rarr; Updated knowledge<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;┌──────────┴──────────┐<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;New pattern?&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Known pattern?<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Create OPS-KE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Update OPS-KE<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ OPS-RUN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(occurrence_count,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;confidence, resolution)
+        </div>
+
+        <h4>Consolidation checklist</h4>
+        <ol>
+            <li>Is it a new pattern? &rarr; Create OPS-KE</li>
+            <li>Known pattern? &rarr; Update <code>occurrence_count</code>, refine resolution</li>
+            <li>Undocumented root cause? &rarr; Update OPS-KE</li>
+            <li>Missing runbook? &rarr; Create OPS-RUN</li>
+            <li>Operational decision taken? &rarr; Write ADR</li>
+            <li>Can confidence be raised? &rarr; LOW&rarr;MEDIUM (reviewed), MEDIUM&rarr;HIGH (validated in prod)</li>
+        </ol>
+
+        <h3>Block 4: Demo &mdash; Codify a real incident (15 min)</h3>
+        <ol>
+            <li>Search ticketing for the last resolved P1/P2</li>
+            <li>Write WRK-INC with <code>activates</code> and <code>mitigated-by</code></li>
+            <li>Run consolidation: which OPS-KE gets updated or created?</li>
+            <li><code>spec-graph validate</code> + <code>spec-graph context</code></li>
+        </ol>
+
+        <h2>Coaching (1-2h)</h2>
+
+        <h3>New service</h3>
+        <ol>
+            <li>Codify 3-5 incidents from the outgoing team's history</li>
+            <li>Link to OPS-KE created in week 1</li>
+            <li>Identify missing OPS-KE</li>
+        </ol>
+
+        <h3>Consolidated service</h3>
+        <ol>
+            <li>Mine post-mortems from the last 6-12 months</li>
+            <li>Codify as retroactive WRK-INC</li>
+            <li>Practice consolidation: which OPS-KE get updated?</li>
+        </ol>
+
+        <h3>Both</h3>
+        <ul>
+            <li>Review and improve week 1 specs</li>
+            <li>Clean <code>spec-graph validate</code></li>
+            <li><code>spec-graph build --html</code> to visualize the graph</li>
+            <li>Identify and resolve orphans</li>
+        </ul>
+
+        <h2>Autonomous work</h2>
+        <ul>
+            <li>Each member codifies 1-2 incidents as WRK-INC</li>
+            <li>Execute consolidation on at least 1 incident</li>
+            <li>Connect orphaned specs</li>
+            <li>Explore the graph with <code>spec-graph build --html</code></li>
+        </ul>
+
+        <div class="insights-row">
+            <div class="insight-card alert">
+                <h5>Anti-pattern: Skip consolidation</h5>
+                <p>If knowledge stays in the ticket, it wasn't discovered. Consolidation is what transforms tickets into specs.</p>
+            </div>
+        </div>
+
+        <h2>Week 2 deliverables</h2>
+        <table>
+            <thead><tr><th>Criterion</th><th>Minimum</th><th>Desirable</th></tr></thead>
+            <tbody>
+                <tr><td>WRK-INC codified</td><td>3</td><td>5+</td></tr>
+                <tr><td>Consolidation practiced</td><td>1</td><td>3+</td></tr>
+                <tr><td><code>spec-graph validate</code> without errors</td><td>&check;</td><td>&check;</td></tr>
+                <tr><td>Graph visualized (<code>build --html</code>)</td><td>&check;</td><td>&check;</td></tr>
+                <tr><td>Orphans identified and resolved</td><td>&check;</td><td>&check;</td></tr>
+                <tr><td>Total specs accumulated</td><td>10</td><td>15+</td></tr>
+            </tbody>
+        </table>
+
+    </div>
+</section>
+
+
+<!-- ============================================================ -->
+<!-- SECTION 04 — WEEK 3 -->
+<!-- ============================================================ -->
+<section id="sec-4" class="section alt">
+    <div class="section-header fade-in">
+        <span class="section-number">04</span>
+        <div>
+            <div class="section-title">Week 3 &mdash; Activation</div>
+            <div class="section-subtitle">Specs as context for agents</div>
+        </div>
+    </div>
+    <div class="content fade-in fade-in-delay-1">
+
+        <div class="overview">
+            <div class="overview-label">Objective</div>
+            <p class="overview-text">The team learns to <strong>activate</strong> specs as context and use them with an AI agent for assisted incident resolution and evolutive planning. This is the week where everything clicks.</p>
+        </div>
+
+        <h2>Workshop (2h)</h2>
+
+        <h3>Block 1: Contextual activation &mdash; The pipeline (30 min)</h3>
+        <p><strong>The problem</strong>: an AI agent without service-specific context gives generic answers. An agent with the right specs as context gives answers aligned with the team's operational reality.</p>
+
+        <h4>Activation pipeline &mdash; 4 steps</h4>
+        <table>
+            <thead><tr><th>Step</th><th>What it does</th><th>How</th><th>Tool</th></tr></thead>
+            <tbody>
+                <tr><td>1. Explicit</td><td>Identify the directly relevant spec</td><td><code>activates</code> field in WRK-INC, or manual search by symptoms</td><td>Team knowledge</td></tr>
+                <tr><td>2. Transitive</td><td>Follow dependencies for complete context</td><td><code>spec-graph context &lt;id&gt; --depth 2</code></td><td>spec-graph CLI</td></tr>
+                <tr><td>3. Filtered</td><td>Remove specs not relevant to the current problem</td><td>By domain, type, or layer</td><td>Manual or flag</td></tr>
+                <tr><td>4. Budgeted</td><td>Limit the bundle to what the agent can process</td><td>5-10 specs max per query</td><td>Pragmatism</td></tr>
+            </tbody>
+        </table>
+
+        <h4>Example: timeout alert on payments service</h4>
+<pre><code># Step 1: Identify the relevant OPS-KE
+# (by symptoms, or because the alert references it)
+
+# Step 2: Get transitive context
+spec-graph context OPS-KE-PAYMENTS-001 --depth 2
+
+# Output:
+# OPS-KE-PAYMENTS-001 (the known error)
+#   &rarr; ARCH-PAYMENTS-001 (system architecture)
+#   &rarr; OPS-RUN-PAYMENTS-001 (restart runbook)
+#   &rarr; WRK-INC-001 (last time it happened)
+#   &rarr; WRK-INC-007 (time before that)
+
+# Step 3: Filter &mdash; we only need OPS-KE + ARCH + OPS-RUN
+# Step 4: 3 specs &mdash; within budget</code></pre>
+
+        <h3>Block 2: Activation matrix for AMS (20 min)</h3>
+        <table>
+            <thead><tr><th>Task</th><th>Primary specs</th><th>Secondary specs</th><th>Typical bundle</th></tr></thead>
+            <tbody>
+                <tr><td>Resolve incident</td><td>OPS-KE (pattern), OPS-RUN (procedure)</td><td>ARCH (system context), previous WRK-INC (history)</td><td>3-7 specs</td></tr>
+                <tr><td>Diagnose unknown problem</td><td>ARCH (topology), related OPS-KE (similar symptoms)</td><td>OPS-RUN (diagnostic procedures)</td><td>4-8 specs</td></tr>
+                <tr><td>Develop evolutive</td><td>ARCH (affected system), DOM (business rules), FEAT (current behavior)</td><td>OPS-KE (known risks), ADR (previous decisions), PROD</td><td>5-12 specs</td></tr>
+                <tr><td>Execute operational change</td><td>ARCH (system), OPS-RUN (procedure), OPS-KE (risks)</td><td>ADR (previous decisions)</td><td>4-6 specs</td></tr>
+                <tr><td>Onboard new member</td><td>ARCH (all), OPS-KE (top 5), OPS-RUN (critical)</td><td>ADR (decision context)</td><td>8-12 specs</td></tr>
+                <tr><td>Post-mortem</td><td>WRK-INC (the incident), OPS-KE (if it existed), ARCH (system)</td><td>Previous similar WRK-INC</td><td>3-6 specs</td></tr>
+            </tbody>
+        </table>
+
+        <h3>Block 3: Incident resolution agent &mdash; Live demo (40 min)</h3>
+        <p><strong>Scenario</strong>: An incident arrives. The team uses specs as context for an AI agent that assists with resolution.</p>
+
+        <div class="flow-diagram">
+1. ALERT<br>
+&nbsp;&nbsp;&nbsp;"HTTP 504 on /api/payments/*"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│<br>
+2. IDENTIFY OPS-KE<br>
+&nbsp;&nbsp;&nbsp;&rarr; By symptoms: "timeout" + "payments" &rarr; OPS-KE-PAYMENTS-001<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│<br>
+3. ACTIVATE CONTEXT<br>
+&nbsp;&nbsp;&nbsp;&rarr; spec-graph context OPS-KE-PAYMENTS-001 --depth 2<br>
+&nbsp;&nbsp;&nbsp;&rarr; Bundle: OPS-KE + ARCH + OPS-RUN<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│<br>
+4. PROMPT THE AGENT<br>
+&nbsp;&nbsp;&nbsp;"I'm resolving this incident. Here's the context..."<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│<br>
+5. AGENT RESPONDS<br>
+&nbsp;&nbsp;&nbsp;&rarr; Diagnosis aligned with OPS-KE (not generic)<br>
+&nbsp;&nbsp;&nbsp;&rarr; Resolution steps based on OPS-RUN (not invented)<br>
+&nbsp;&nbsp;&nbsp;&rarr; Real architecture context (not assumed)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│<br>
+6. RESOLVE + CONSOLIDATE<br>
+&nbsp;&nbsp;&nbsp;&rarr; Execute resolution<br>
+&nbsp;&nbsp;&nbsp;&rarr; WRK-INC + consolidation
+        </div>
+
+        <h4>Prompt template for incident resolution</h4>
+<pre><code>## Service context
+[Paste ARCH spec content]
+
+## Identified Known Error
+[Paste OPS-KE spec content]
+
+## Available Runbook
+[Paste OPS-RUN spec content]
+
+## Current incident
+- Symptoms: [describe what's observed]
+- Start time: [timestamp]
+- Impact: [affected users/services]
+
+## Question
+Given this context, do you confirm this matches the known error?
+What steps do you recommend and in what order?
+Are there additional risks we should consider?</code></pre>
+
+        <h4>Prompt template for unknown problem diagnosis</h4>
+<pre><code>## Service context
+[Paste ARCH spec content]
+
+## Service Known Errors
+[Paste OPS-KE specs summary: id, title, symptoms]
+
+## Observed symptoms
+[Describe current symptoms]
+
+## Question
+Do any of the documented known errors match these symptoms?
+If not, what diagnosis do you suggest based on the service architecture?
+What diagnostic steps do you recommend?</code></pre>
+
+        <h3>Block 4: KDD for evolutives &mdash; The SDLC bridge (20 min)</h3>
+        <p>Evolutives draw from the <strong>full KDD taxonomy</strong>, not just operational specs:</p>
+
+        <table>
+            <thead><tr><th>Taxonomy layer</th><th>Why it matters for evolutives</th><th>Example</th></tr></thead>
+            <tbody>
+                <tr><td>ARCH</td><td>System architecture, dependencies, integration points</td><td>Where does this service connect? What breaks if we change the DB?</td></tr>
+                <tr><td>DOM</td><td>Business rules, regulatory constraints, domain logic</td><td>What transfer limits apply? What AML rules must be preserved?</td></tr>
+                <tr><td>FEAT</td><td>Current feature behavior, acceptance criteria</td><td>How does the payment flow work today?</td></tr>
+                <tr><td>PROD</td><td>Product-level requirements, user journeys</td><td>What's the end-to-end customer experience?</td></tr>
+                <tr><td>OPS-KE</td><td>Known failure patterns, operational risks</td><td>What's known to break under load?</td></tr>
+                <tr><td>ADR</td><td>Previous decisions and their rationale</td><td>Why was this approach chosen over alternatives?</td></tr>
+            </tbody>
+        </table>
+
+        <h4>KDD flow for evolutives: WRK-SPEC &rarr; WRK-PLAN &rarr; WRK-TASK</h4>
+
+        <div class="flow-diagram">
+1. EVOLUTIVE REQUEST<br>
+&nbsp;&nbsp;&nbsp;"Increase connection pool and add auto-scaling"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│<br>
+2. WRK-SPEC (what and why)<br>
+&nbsp;&nbsp;&nbsp;&rarr; activates: ARCH, DOM, OPS-KE, ADR<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│<br>
+3. ACTIVATE CONTEXT<br>
+&nbsp;&nbsp;&nbsp;&rarr; Bundle: architecture + domain rules + known errors + decisions<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│<br>
+4. WRK-PLAN (how) &mdash; with agent assistance<br>
+&nbsp;&nbsp;&nbsp;&rarr; Agent proposes plan aligned with real architecture<br>
+&nbsp;&nbsp;&nbsp;&rarr; Identifies risks based on OPS-KE and DOM specs<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│<br>
+5. WRK-TASK (atomic units)<br>
+&nbsp;&nbsp;&nbsp;&rarr; Each task inherits context from the plan<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│<br>
+6. CONSOLIDATE<br>
+&nbsp;&nbsp;&nbsp;&rarr; ARCH, FEAT, OPS-KE, OPS-RUN, DOM updated as needed
+        </div>
+
+        <blockquote><p><strong>The same graph serves ops and development</strong>: an OPS-KE documenting "timeout due to exhausted pool" is context for the engineer resolving the incident <strong>and</strong> for the developer implementing auto-scaling.</p></blockquote>
+
+        <h4>Prompt template for evolutive planning</h4>
+<pre><code>## Requested evolutive
+[Description of the change and acceptance criteria]
+
+## System architecture
+[Paste ARCH spec &mdash; components, dependencies, integration points]
+
+## Domain rules and constraints
+[Paste DOM specs &mdash; business rules, regulatory requirements]
+
+## Current feature behavior
+[Paste FEAT spec &mdash; how the affected functionality works today]
+
+## Known operational risks
+[Paste OPS-KE specs that relate to the affected area]
+
+## Previous decisions
+[Paste related ADRs]
+
+## Question
+Given this context, propose an implementation plan.
+What domain constraints must be preserved?
+What risks do you identify based on the known errors?
+Which specs would need updating after the change?</code></pre>
+
+        <h3>Block 5: Hands-on exercise (30 min)</h3>
+
+        <div class="insights-row">
+            <div class="insight-card">
+                <h5>Option A &mdash; Operations</h5>
+                <p>One member simulates "the alert" (describes symptoms from a past incident). The other executes the flow: identify OPS-KE &rarr; activate context &rarr; prompt the agent &rarr; evaluate response.</p>
+            </div>
+            <div class="insight-card info">
+                <h5>Option B &mdash; Evolutive</h5>
+                <p>Identify a pending or recent change in the service. Activate relevant context (ARCH + OPS-KE + ADR). Ask the agent for an implementation plan and evaluate: does the plan account for real architecture and known risks?</p>
+            </div>
+        </div>
+
+        <p>In both cases, compare: is the agent's response with specs better than without?</p>
+
+        <h2>Coaching (1-2h)</h2>
+        <ul>
+            <li>Each sub-team executes the full activation + agent flow:
+                <ul>
+                    <li><strong>Operations</strong>: 1-2 real incidents (assisted resolution)</li>
+                    <li><strong>Evolutives</strong>: 1 pending change from the backlog (assisted planning)</li>
+                </ul>
+            </li>
+            <li>Refine prompts: what's missing? what's excess? how to improve the response?</li>
+            <li>Identify specs that need more detail for the agent to be effective</li>
+            <li>Document prompts that work as reusable templates</li>
+        </ul>
+
+        <h2>Autonomous work</h2>
+        <ul>
+            <li>Each member executes 1 activation + agent flow (incident or evolutive, their choice)</li>
+            <li>Refine specs based on what the agent "needed" and didn't find in the bundle</li>
+            <li>Write 1-2 new specs that were revealed as necessary during practice</li>
+        </ul>
+
+        <div class="insights-row">
+            <div class="insight-card alert">
+                <h5>Anti-pattern: Feed the agent everything</h5>
+                <p>Select relevant specs. A bundle of 20 specs produces diffuse responses; a bundle of 3-5 focused specs produces precise ones.</p>
+            </div>
+        </div>
+
+        <h2>Week 3 deliverables</h2>
+        <table>
+            <thead><tr><th>Criterion</th><th>Minimum</th><th>Desirable</th></tr></thead>
+            <tbody>
+                <tr><td>Activation + agent flow executed (ops)</td><td>1</td><td>3+</td></tr>
+                <tr><td>Activation + agent flow executed (evolutive)</td><td>1</td><td>2+</td></tr>
+                <tr><td>Prompt templates documented</td><td>2 (ops + evolutive)</td><td>3+</td></tr>
+                <tr><td>Specs refined after agent practice</td><td>2</td><td>5+</td></tr>
+                <tr><td>New specs created from detected gaps</td><td>1</td><td>3+</td></tr>
+            </tbody>
+        </table>
+
+    </div>
+</section>
+
+
+<!-- ============================================================ -->
+<!-- SECTION 05 — WEEK 4 -->
+<!-- ============================================================ -->
+<section id="sec-5" class="section">
+    <div class="section-header fade-in">
+        <span class="section-number">05</span>
+        <div>
+            <div class="section-title">Week 4 &mdash; Consolidate</div>
+            <div class="section-subtitle">Quality, metrics, and sustainability</div>
+        </div>
+    </div>
+    <div class="content fade-in fade-in-delay-1">
+
+        <div class="overview">
+            <div class="overview-label">Objective</div>
+            <p class="overview-text">Raise graph quality, establish a metrics baseline, and define how the team will continue growing knowledge autonomously.</p>
+        </div>
+
+        <h2>Workshop (2h)</h2>
+
+        <h3>Block 1: Basic governance &mdash; ADR and RULE (30 min)</h3>
+        <p>Two governance artifacts that reinforce quality:</p>
+
+        <h4>ADR &mdash; record operational decisions</h4>
+<pre><code>---
+id: ADR-OPS-001
+type: governance
+layer: decision
+title: Prioritize connection pool resize over auto-scaling
+status: accepted
+date: 2026-03-16
+---
+
+## Context
+After the P1 on 03/15 (WRK-INC-001), we need to decide between static pool
+resize or dynamic auto-scaling implementation.
+
+## Decision
+Static resize to max_connections=100. Auto-scaling discarded due to
+implementation complexity in the current environment.
+
+## Consequences
+- Faster resolution (1 sprint vs 3 sprints)
+- Limited capacity: if load exceeds 100 conn, it will fail again
+- Review in 6 months if load grows</code></pre>
+
+        <h4>RULE &mdash; codify permanent constraints</h4>
+        <ul>
+            <li>"Every P1 requires a post-mortem documented as ADR within 48h"</li>
+            <li>"Every OPS-RUN requires Validation and Rollback sections"</li>
+            <li>"Every new OPS-KE requires at least 1 linked WRK-INC"</li>
+            <li>"Confidence is updated after production validation"</li>
+        </ul>
+
+        <h3>Block 2: Graph quality &mdash; Review and confidence levels (30 min)</h3>
+<pre><code>spec-graph validate       # Integrity errors
+spec-graph orphans        # Specs without connections
+spec-graph stats          # Overview
+spec-graph build --html   # Visualization for review</code></pre>
+
+        <p>Team review of the full graph:</p>
+        <ul>
+            <li>Any OPS-KE without a linked OPS-RUN? (resolution gap)</li>
+            <li>Any OPS-RUN without an OPS-KE? (procedure without context of when to use it)</li>
+            <li>Any outdated ARCH?</li>
+            <li>Are confidence levels honest?</li>
+        </ul>
+
+        <p>Raise confidence after review:</p>
+        <ul>
+            <li><strong>LOW&rarr;MEDIUM</strong>: spec reviewed by a peer</li>
+            <li><strong>MEDIUM&rarr;HIGH</strong>: spec validated in production (used in a real incident)</li>
+        </ul>
+
+        <h3>Block 3: Adoption metrics (20 min)</h3>
+        <p>Four metrics to measure whether knowledge is working for the team:</p>
+
+        <table>
+            <thead><tr><th>Metric</th><th>What it measures</th><th>How to measure</th></tr></thead>
+            <tbody>
+                <tr><td>OPS-KE Coverage</td><td>% of recurring incidents with a documented OPS-KE</td><td>Cross-reference top ticketing incidents with existing specs</td></tr>
+                <tr><td>First-time Resolution</td><td>% of incidents resolved on first attempt</td><td>Compare before/after the program</td></tr>
+                <tr><td>Consolidation Rate</td><td>% of incidents that produce spec updates</td><td>Count WRK-INC with completed Consolidation section</td></tr>
+                <tr><td>Agent Effectiveness</td><td>Quality of agent response with specs vs without</td><td>Qualitative team evaluation</td></tr>
+            </tbody>
+        </table>
+
+        <blockquote><p>Precision is not required: informed team estimates are sufficient to establish a baseline.</p></blockquote>
+
+        <h3>Block 4: Roadmap and sustainability (40 min)</h3>
+
+        <h4>What already works (consolidate)</h4>
+        <ul>
+            <li>Writing specs as part of the operational workflow</li>
+            <li>Using activation + agent for incident resolution and evolutive planning</li>
+            <li>Consolidating after each significant incident</li>
+            <li>Reviewing specs periodically</li>
+        </ul>
+
+        <h4>What comes next (roadmap)</h4>
+        <table>
+            <thead><tr><th>Horizon</th><th>Focus</th><th>Capabilities</th></tr></thead>
+            <tbody>
+                <tr><td>Month 2-3</td><td>ITSM&rarr;specs bridge automation</td><td>Auto-generate WRK-INC drafts from Jira/ServiceNow, semi-automatic enrichment</td></tr>
+                <tr><td>Month 3-5</td><td>Semantic search over specs</td><td>Vector index over OPS-KE symptoms, automatic incident-to-known-error matching</td></tr>
+                <tr><td>Month 5+</td><td>Closed-loop operations</td><td>Pattern detection in WRK-INC, auto-propose OPS-KE, cross-service correlation</td></tr>
+            </tbody>
+        </table>
+
+        <h4>Program retrospective (facilitated)</h4>
+        <ul>
+            <li>Which specs were most useful?</li>
+            <li>Where is the biggest gap?</li>
+            <li>Is the consolidation cycle sustainable?</li>
+            <li>Do the agent prompts need improvement?</li>
+        </ul>
+
+        <h2>Coaching (1-2h)</h2>
+        <ol>
+            <li><strong>Measure baseline</strong>: current state of the 4 metrics</li>
+            <li><strong>Full graph review</strong>: resolve all gaps</li>
+            <li><strong>Write 2-3 ADRs</strong> for decisions made during the program</li>
+            <li><strong>Codify 2-3 RULEs</strong> the team has adopted</li>
+            <li><strong>Plan month 2</strong>: which OPS-KE are missing? what to automate first?</li>
+        </ol>
+
+        <h2>Autonomous work</h2>
+        <ul>
+            <li>Document metrics baseline</li>
+            <li>Identify 1-2 champions who will lead continued adoption</li>
+            <li>Schedule <strong>weekly spec review</strong> (30 min) as part of the workflow</li>
+            <li>Complete pending specs</li>
+            <li>Retrospective as ADR</li>
+        </ul>
+
+        <div class="insights-row">
+            <div class="insight-card alert">
+                <h5>Anti-pattern: Capture every ticket as OPS-KE</h5>
+                <p>Only recurring or high-impact patterns. If it happened once and won't repeat, it's not a known error. Signal matters more than volume.</p>
+            </div>
+        </div>
+
+        <h2>Week 4 deliverables</h2>
+        <table>
+            <thead><tr><th>Criterion</th><th>Minimum</th><th>Desirable</th></tr></thead>
+            <tbody>
+                <tr><td>Metrics baseline documented</td><td>&check;</td><td>&check;</td></tr>
+                <tr><td>ADRs written</td><td>2</td><td>3+</td></tr>
+                <tr><td>RULE specs created</td><td>2</td><td>3+</td></tr>
+                <tr><td>Clean graph (validate without errors)</td><td>&check;</td><td>&check;</td></tr>
+                <tr><td>Confidence levels reviewed</td><td>&check;</td><td>&check;</td></tr>
+                <tr><td>Month 2 roadmap defined</td><td>&check;</td><td>&check;</td></tr>
+                <tr><td>Champions identified</td><td>1</td><td>2</td></tr>
+                <tr><td>Weekly spec review scheduled</td><td>&check;</td><td>&check;</td></tr>
+                <tr><td>Total specs accumulated</td><td>15</td><td>25+</td></tr>
+            </tbody>
+        </table>
+
+    </div>
+</section>
+
+
+<!-- ============================================================ -->
+<!-- SECTION 06 — SUMMARY TABLE -->
+<!-- ============================================================ -->
+<section id="sec-6" class="section alt">
+    <div class="section-header fade-in">
+        <span class="section-number">06</span>
+        <div>
+            <div class="section-title">Summary Table</div>
+            <div class="section-subtitle">New service vs consolidated service</div>
+        </div>
+    </div>
+    <div class="content fade-in fade-in-delay-1">
+
+        <table>
+            <thead><tr><th>Week</th><th>New service</th><th>Consolidated service</th></tr></thead>
+            <tbody>
+                <tr><td>1</td><td>OPS-RUN for critical procedures + ARCH</td><td>OPS-KE for top 5 recurring incidents</td></tr>
+                <tr><td>2</td><td>WRK-INC from outgoing team's history</td><td>WRK-INC from past year's post-mortems</td></tr>
+                <tr><td>3</td><td>Activation + agent to accelerate transition</td><td>Activation + agent to improve resolution + plan evolutives</td></tr>
+                <tr><td>4</td><td>Clean baseline + complete coverage</td><td>Baseline + close gaps + plan automation</td></tr>
+            </tbody>
+        </table>
+
+        <div class="exec-block" style="border-radius: 12px; margin-top: 2rem;">
+            <h3>The Compounding Effect</h3>
+            <p>After 4 weeks, the team has not just documentation &mdash; they have a <strong>navigable knowledge graph</strong> that serves both incident resolution and evolutive development. Every future incident enriches the graph; every evolutive draws context from it. The flywheel is turning.</p>
+        </div>
+
+    </div>
+</section>
+
+
+<!-- ============================================================ -->
+<!-- SECTION 07 — REFERENCE MATERIAL -->
+<!-- ============================================================ -->
+<section id="sec-7" class="section">
+    <div class="section-header fade-in">
+        <span class="section-number">07</span>
+        <div>
+            <div class="section-title">Reference Material</div>
+            <div class="section-subtitle">Framework documentation, guides, and CLI tools</div>
+        </div>
+    </div>
+    <div class="content fade-in fade-in-delay-1">
+
+        <h2>KDD Framework</h2>
+        <table>
+            <thead><tr><th>Document</th><th>Content</th></tr></thead>
+            <tbody>
+                <tr><td><code>foundation/manifesto.md</code></td><td>Why KDD</td></tr>
+                <tr><td><code>foundation/pillars.md</code></td><td>Three pillars: Spec-Driven, Evolutive, Agentic</td></tr>
+                <tr><td><code>knowledge-architecture/spec-anatomy.md</code></td><td>Standard spec anatomy</td></tr>
+                <tr><td><code>knowledge-architecture/spec-types.md</code></td><td>Artifact types and lifecycle</td></tr>
+                <tr><td><code>docs/getting-started.md</code></td><td>First spec in 10 minutes</td></tr>
+            </tbody>
+        </table>
+
+        <h2>Operational Guides</h2>
+        <table>
+            <thead><tr><th>Document</th><th>Content</th></tr></thead>
+            <tbody>
+                <tr><td><code>docs/guides/create-knowledge-spec.md</code></td><td>Creating knowledge specs</td></tr>
+                <tr><td><code>docs/guides/contextual-activation.md</code></td><td>Activation pipeline (4 steps)</td></tr>
+                <tr><td><code>docs/guides/governance-cycle.md</code></td><td>RFC &rarr; SPEC &rarr; ADR</td></tr>
+                <tr><td><code>docs/guides/consolidation.md</code></td><td>Work&rarr;Knowledge consolidation</td></tr>
+                <tr><td><code>docs/patterns/ams-adoption.md</code></td><td>AMS adoption pattern (5 phases)</td></tr>
+                <tr><td><code>docs/patterns/spec-as-prompt.md</code></td><td>Specs as context for agents</td></tr>
+            </tbody>
+        </table>
+
+        <h2>Tools</h2>
+        <table>
+            <thead><tr><th>Command</th><th>Purpose</th></tr></thead>
+            <tbody>
+                <tr><td><code>spec-graph validate</code></td><td>Validate graph integrity</td></tr>
+                <tr><td><code>spec-graph stats</code></td><td>Graph statistics</td></tr>
+                <tr><td><code>spec-graph build --html</code></td><td>Interactive visualization</td></tr>
+                <tr><td><code>spec-graph context &lt;id&gt; --depth N</code></td><td>Contextual activation bundle</td></tr>
+                <tr><td><code>spec-graph impact &lt;id&gt;</code></td><td>Transitive impact analysis</td></tr>
+                <tr><td><code>spec-graph orphans</code></td><td>Detect specs without connections</td></tr>
+            </tbody>
+        </table>
+
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+    <h2>Knowledge-Driven Development</h2>
+    <p>AMS Adoption Program &mdash; 2026</p>
+</footer>
+
+<!-- SCRIPTS -->
+<script>
+// Sticky Nav
+(function(){
+    var nav = document.getElementById('sticky-nav');
+    var sections = ['sec-1','sec-2','sec-3','sec-4','sec-5','sec-6','sec-7'];
+    var navLinks = {};
+    nav.querySelectorAll('a[data-nav]').forEach(function(a){
+        navLinks[a.getAttribute('data-nav')] = a;
+    });
+    var coverEnd = 0;
+    var ticking = false;
+    function onScroll() {
+        if (ticking) return;
+        ticking = true;
+        requestAnimationFrame(function(){
+            ticking = false;
+            var scrollY = window.scrollY || window.pageYOffset;
+            if (!coverEnd) {
+                var cover = document.querySelector('.cover');
+                if (cover) coverEnd = cover.offsetTop + cover.offsetHeight;
+            }
+            if (scrollY > coverEnd - 60) nav.classList.add('visible');
+            else nav.classList.remove('visible');
+            var current = '';
+            for (var i = sections.length - 1; i >= 0; i--) {
+                var el = document.getElementById(sections[i]);
+                if (el && scrollY >= el.offsetTop - 120) { current = sections[i]; break; }
+            }
+            sections.forEach(function(id){
+                if (navLinks[id]) {
+                    if (id === current) navLinks[id].classList.add('active');
+                    else navLinks[id].classList.remove('active');
+                }
+            });
+        });
+    }
+    window.addEventListener('scroll', onScroll, {passive: true});
+    onScroll();
+})();
+
+// Smooth Scroll
+(function(){
+    document.querySelectorAll('a[href^="#"]').forEach(function(a){
+        a.addEventListener('click', function(e){
+            e.preventDefault();
+            var t = document.querySelector(a.getAttribute('href'));
+            if(t) t.scrollIntoView({behavior:'smooth'});
+        });
+    });
+})();
+
+// Fade-in
+(function(){
+    var observer = new IntersectionObserver(function(entries){
+        entries.forEach(function(entry){
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+    document.querySelectorAll('.fade-in').forEach(function(el){ observer.observe(el); });
+})();
+</script>
+
+<script>
+(function() {
+    var CLIENT_ID = "605248850504-ho9henin8ssfmcblljocrn0ak0jua49h.apps.googleusercontent.com";
+    var ALLOWED_DOMAINS = ["nfq.es", "nter.es", "nfq.mx", "nfq.com.br"];
+    var SESSION_KEY = "kdd_auth";
+    var LOG_ENDPOINT = "https://script.google.com/macros/s/AKfycbx42FyRhBeErzd74a286wsV6CvOOq4xZQk1PFFhIQ-aDqPNGE16cBRsKOR0Ldy9zwbz4w/exec";
+    var DOC_NAME = (location.pathname.replace(/^\//, '').replace(/\.html$/, '') || 'index');
+
+    function isAllowed(email) {
+        return ALLOWED_DOMAINS.some(function(d) { return email.endsWith('@' + d); });
+    }
+
+    function grantAccess() {
+        document.getElementById('auth-gate').style.display = 'none';
+    }
+
+    function showError(msg) {
+        var el = document.getElementById('auth-gate-error');
+        el.textContent = msg;
+        el.style.display = 'block';
+    }
+
+    // Check existing session
+    try {
+        var session = JSON.parse(sessionStorage.getItem(SESSION_KEY));
+        if (session && session.email && isAllowed(session.email) && session.exp > Date.now()) {
+            grantAccess();
+            return; // Already authenticated, skip GIS init
+        }
+    } catch(e) {}
+
+    // Google Identity Services callback
+    window.__onGoogleSignIn = function(response) {
+        // Decode JWT payload (base64url)
+        try {
+            var payload = JSON.parse(atob(response.credential.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));
+            if (payload.email && isAllowed(payload.email)) {
+                sessionStorage.setItem(SESSION_KEY, JSON.stringify({
+                    email: payload.email,
+                    name: payload.name,
+                    exp: Date.now() + 8 * 60 * 60 * 1000 // 8 hours
+                }));
+                try {
+                    fetch(LOG_ENDPOINT, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify({ idToken: response.credential, doc: DOC_NAME })
+                    }).catch(function() {});
+                } catch(e) {}
+                grantAccess();
+            } else {
+                showError('Access denied. Only corporate accounts (@nfq.es, @nter.es, @nfq.mx, @nfq.com.br) are allowed.');
+            }
+        } catch(e) {
+            showError('Authentication error. Please try again.');
+        }
+    };
+
+    // Render Google Sign-In button (no hosted_domain to allow both domains)
+    google.accounts.id.initialize({
+        client_id: CLIENT_ID,
+        callback: window.__onGoogleSignIn,
+        ux_mode: 'popup'
+    });
+    google.accounts.id.renderButton(
+        document.getElementById('auth-gate-btn'),
+        { theme: 'filled_blue', size: 'large', shape: 'pill', text: 'signin_with', width: 280 }
+    );
+})();
+</script>
+
+</body>
+</html>

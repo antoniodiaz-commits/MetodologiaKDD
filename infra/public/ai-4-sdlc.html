@@ -1,0 +1,2453 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 4 SDLC — IA en el ciclo de vida del software</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+:root {
+    --bg-deep: #0a0a0f;
+    --bg-card: #12121a;
+    --bg-elevated: #1a1a24;
+    --text-primary: #ffffff;
+    --text-secondary: #c8c8d8;
+    --text-muted: #9090a8;
+    --accent-orange: #ff7a4a;
+    --accent-pink: #ff4477;
+    --accent-purple: #a855ff;
+    --accent-cyan: #22ddff;
+    --gradient-hot: linear-gradient(135deg, #ff7a4a 0%, #ff4477 50%, #a855ff 100%);
+    --gradient-cool: linear-gradient(135deg, #22ddff 0%, #a855ff 100%);
+    --gradient-fire: linear-gradient(135deg, #ff4477 0%, #ff7a4a 100%);
+    --shadow-glow: 0 0 60px rgba(255, 107, 53, 0.15);
+    --border-subtle: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body {
+    height: 100%; overflow: hidden;
+    font-family: 'Sora', sans-serif;
+    background: var(--bg-deep);
+    color: var(--text-primary);
+}
+code, .mono { font-family: 'JetBrains Mono', monospace; }
+
+h1 {
+    font-size: clamp(3rem, 5.5vw, 5rem);
+    font-weight: 800; line-height: 1.1; margin-bottom: 1.5rem;
+    background: var(--gradient-hot);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+h2 {
+    font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+    font-weight: 700; line-height: 1.2; margin-bottom: 1.2rem;
+    color: var(--text-primary);
+}
+h3 {
+    font-size: clamp(1.3rem, 2.2vw, 1.8rem);
+    font-weight: 600; line-height: 1.3; margin-bottom: 0.8rem;
+    color: var(--text-primary);
+}
+h4 {
+    font-size: clamp(0.9rem, 1.2vw, 1.1rem);
+    font-weight: 600; color: var(--accent-orange);
+    margin-bottom: 0.6rem; text-transform: uppercase; letter-spacing: 0.1em;
+}
+p {
+    font-size: clamp(1rem, 1.3vw, 1.25rem);
+    line-height: 1.7; color: var(--text-secondary); max-width: 1200px;
+}
+.lead { font-size: clamp(1.2rem, 1.8vw, 1.5rem); color: var(--text-primary); font-weight: 400; }
+.highlight { color: var(--accent-orange); font-weight: 600; }
+.gradient-text { background: var(--gradient-hot); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+.presentation { height: 100vh; width: 100vw; position: relative; overflow: hidden; }
+
+.slide {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    padding: 60px 80px;
+    opacity: 0; visibility: hidden; transform: translateX(100px);
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1;
+}
+.slide.active { opacity: 1; visibility: visible; transform: translateX(0); z-index: 10; }
+.slide.prev   { transform: translateX(-100px); opacity: 0; }
+.slide.next   { transform: translateX(100px); opacity: 0; }
+
+.slide-content {
+    max-width: 1400px; width: 100%; height: 100%;
+    display: flex; flex-direction: column; justify-content: center;
+    position: relative; z-index: 2;
+}
+
+.title-slide { text-align: center; align-items: center; }
+.title-slide h1 { font-size: clamp(3.5rem, 7.5vw, 6rem); margin-bottom: 1rem; }
+.title-slide .subtitle { font-size: clamp(1.4rem, 2.2vw, 2rem); color: var(--text-secondary); margin-bottom: 3rem; max-width: 100%; }
+.title-slide .meta { display: flex; justify-content: center; gap: 3rem; font-size: 1.1rem; color: var(--text-secondary); }
+.title-slide .lema {
+    margin-top: 4rem; font-size: clamp(1.5rem, 2.8vw, 2.2rem);
+    font-style: italic; color: var(--accent-orange); text-align: center; width: 100%;
+}
+
+.section-divider {
+    display: flex; flex-direction: column; justify-content: center;
+    align-items: center; text-align: center; min-height: 80vh;
+}
+.section-number {
+    font-size: 10rem; font-weight: 800;
+    background: var(--gradient-hot); -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent; opacity: 0.2;
+    line-height: 1; margin-bottom: 1rem;
+}
+
+/* Cards */
+.card {
+    background: var(--bg-card); border: var(--border-subtle);
+    border-radius: 16px; padding: 2rem; backdrop-filter: blur(10px);
+}
+.card-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem; margin-top: 1.5rem;
+}
+.grid-4 {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 1.2rem; margin-top: 1.5rem;
+}
+.feature-card {
+    background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-elevated) 100%);
+    border: var(--border-subtle); border-radius: 16px;
+    padding: 1.5rem 2rem; position: relative; overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.feature-card::before {
+    content: ''; position: absolute; top: 0; left: 0;
+    width: 4px; height: 100%; background: var(--gradient-hot);
+}
+.feature-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-glow); }
+.feature-card h4 { font-size: 1rem; margin-bottom: 0.4rem; }
+.feature-card p { font-size: 0.95rem; color: var(--text-secondary); }
+
+/* Problem-solution box for slides 6-7 */
+.problem-box {
+    background: var(--bg-card); border-radius: 16px; padding: 1.5rem;
+    border: var(--border-subtle); position: relative; overflow: hidden;
+    display: flex; flex-direction: column; gap: 1rem;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.problem-box:hover { transform: translateY(-4px); box-shadow: var(--shadow-glow); }
+.problem-box::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0;
+    height: 4px; background: var(--gradient-hot);
+}
+.problem-box .box-title {
+    font-size: 1.05rem; font-weight: 700; color: var(--text-primary);
+    font-family: 'JetBrains Mono', monospace;
+}
+.problem-box .box-problem {
+    font-size: 0.9rem; color: var(--text-muted); line-height: 1.5;
+    padding: 0.75rem; background: rgba(255,255,255,0.03); border-radius: 8px;
+}
+.problem-box .box-solution {
+    font-size: 0.9rem; color: var(--text-secondary); line-height: 1.5;
+    padding: 0.75rem; background: linear-gradient(135deg, rgba(255,107,53,0.06) 0%, rgba(255,68,119,0.04) 100%);
+    border-radius: 8px; border-left: 3px solid var(--accent-orange);
+}
+.problem-box--bottom::before { background: var(--gradient-cool); }
+.problem-box--bottom .box-solution {
+    background: linear-gradient(135deg, rgba(34,221,255,0.08) 0%, rgba(168,85,255,0.06) 100%);
+    border-left-color: var(--accent-cyan);
+    color: var(--text-primary); font-weight: 500;
+}
+.problem-arrows {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 1.2rem; margin: 0.6rem 0;
+}
+.problem-arrows span {
+    text-align: center; font-size: 1.6rem; line-height: 1;
+    color: var(--accent-orange);
+    background: var(--gradient-hot);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+
+/* Workflow swim lanes (slide 19) */
+.workflow-lanes {
+    display: grid; grid-template-columns: 1.3fr 1fr 1.4fr 1.8fr;
+    gap: 0; margin-top: 1rem;
+    border: var(--border-subtle); border-radius: 14px; overflow: hidden;
+    background: var(--bg-card);
+}
+.workflow-lanes .wl-head {
+    padding: 0.55rem 0.9rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem; font-weight: 600; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--text-muted);
+    background: var(--bg-elevated);
+    border-bottom: var(--border-subtle);
+}
+.workflow-lanes .wl-cell {
+    padding: 0.65rem 0.9rem;
+    font-size: 0.82rem; line-height: 1.35;
+    color: var(--text-secondary);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    display: flex; flex-direction: column; gap: 0.25rem; justify-content: center;
+}
+.workflow-lanes .wl-cell:nth-last-child(-n+4) { border-bottom: none; }
+.workflow-lanes .wl-phase {
+    background: linear-gradient(90deg, rgba(255,107,53,0.08), transparent);
+    border-right: 1px solid rgba(255,255,255,0.06);
+}
+.workflow-lanes .wl-phase .wl-num {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.75rem;
+    color: var(--accent-orange); font-weight: 600;
+}
+.workflow-lanes .wl-phase .wl-name {
+    font-weight: 600; color: var(--text-primary); font-size: 0.92rem;
+}
+.workflow-lanes .wl-human { color: var(--text-secondary); }
+.workflow-lanes .wl-human::before {
+    content: '▸ humano'; display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--accent-orange); margin-bottom: 0.2rem; opacity: 0.8;
+}
+.workflow-lanes .wl-ia::before {
+    content: '◆ agentes'; display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--accent-cyan); margin-bottom: 0.2rem; opacity: 0.9;
+}
+.workflow-lanes .wl-agent-chip {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem; color: var(--accent-cyan);
+    background: rgba(34,221,255,0.08);
+    border: 1px solid rgba(34,221,255,0.25);
+    border-radius: 6px; padding: 0.1rem 0.45rem;
+    margin: 0.1rem 0.25rem 0.1rem 0;
+}
+.workflow-lanes .wl-parallel {
+    font-family: 'JetBrains Mono', monospace; color: var(--accent-purple);
+    font-size: 0.7rem; margin-left: 0.2rem;
+}
+.workflow-lanes .wl-know::before {
+    content: '❖ knowledge'; display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--accent-purple); margin-bottom: 0.2rem; opacity: 0.9;
+}
+.workflow-lanes .wl-in, .workflow-lanes .wl-out {
+    font-size: 0.78rem; line-height: 1.35;
+}
+.workflow-lanes .wl-in::before {
+    content: '←'; color: var(--accent-purple); font-weight: 700; margin-right: 0.3rem;
+}
+.workflow-lanes .wl-out::before {
+    content: '→'; color: var(--accent-orange); font-weight: 700; margin-right: 0.3rem;
+}
+.workflow-gate {
+    grid-column: 1 / -1;
+    padding: 0.35rem 0.9rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem; font-weight: 600; letter-spacing: 0.1em;
+    text-transform: uppercase; text-align: center; color: #fff;
+    background: var(--gradient-hot);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.workflow-loop {
+    margin-top: 0.8rem; padding: 0.6rem 1rem;
+    font-family: 'JetBrains Mono', monospace; font-size: 0.78rem;
+    color: var(--text-primary); text-align: center;
+    background: linear-gradient(90deg, rgba(168,85,255,0.1), rgba(34,221,255,0.08), rgba(168,85,255,0.1));
+    border: 1px solid rgba(168,85,255,0.25); border-radius: 10px;
+}
+.workflow-loop strong { color: var(--accent-cyan); font-weight: 700; }
+.wl-infinity {
+    font-size: 1.8rem; font-weight: 700; vertical-align: middle;
+    background: linear-gradient(90deg, var(--accent-purple), var(--accent-cyan));
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    margin-right: 0.4rem; line-height: 1;
+}
+
+/* Maturity scope + cross-cutting lanes (slide 20) */
+.maturity-wrap {
+    position: relative; margin-top: 1.5rem;
+    padding: 2rem 1.8rem 3rem;
+    border: 2px solid transparent;
+    border-radius: 22px;
+    background:
+        linear-gradient(var(--bg-card), var(--bg-card)) padding-box,
+        var(--gradient-cool) border-box;
+}
+.maturity-steps {
+    display: grid; grid-template-columns: 170px repeat(3, 1fr);
+    gap: 0.4rem 1rem; align-items: end;
+}
+.maturity-steps::before { content: ''; }
+.maturity-step {
+    background: linear-gradient(180deg, var(--bg-elevated) 0%, var(--bg-deep) 100%);
+    border: var(--border-subtle); border-radius: 14px 14px 4px 4px;
+    padding: 1rem 1.1rem; position: relative; overflow: hidden;
+    display: flex; flex-direction: column; gap: 0.4rem;
+}
+.maturity-step::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0;
+    height: 3px; background: var(--gradient-hot);
+}
+.maturity-step:nth-child(1) { height: 210px; }
+.maturity-step:nth-child(2) { height: 255px; }
+.maturity-step:nth-child(3) { height: 300px; }
+.m-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem; color: var(--accent-orange);
+    font-weight: 600; letter-spacing: 0.08em;
+}
+.m-title {
+    font-size: 1.2rem; font-weight: 700; color: var(--text-primary);
+    line-height: 1.1;
+}
+.m-scope { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.4; }
+.m-when {
+    margin-top: auto; padding-top: 0.5rem;
+    border-top: 1px dashed rgba(255,255,255,0.12);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem; color: var(--accent-cyan); letter-spacing: 0.04em;
+}
+.maturity-start-badge {
+    position: absolute; top: -0.75rem; right: 0.8rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; color: #fff;
+    background: var(--gradient-hot);
+    padding: 0.2rem 0.6rem; border-radius: 999px;
+    box-shadow: 0 4px 14px rgba(255,68,119,0.4);
+}
+.maturity-lanes {
+    display: grid; grid-template-columns: 170px repeat(3, 1fr);
+    gap: 0.4rem 1rem; margin-top: 1.6rem;
+}
+.maturity-lane-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem; font-weight: 600;
+    color: var(--text-primary);
+    display: flex; align-items: center; gap: 0.4rem;
+    padding: 0.5rem 0;
+}
+.maturity-lane-label::before {
+    content: '▸'; color: var(--accent-purple);
+}
+.maturity-lane-cell {
+    position: relative; overflow: hidden;
+    padding: 0.55rem 0.8rem;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.06);
+    font-size: 0.78rem; color: var(--text-secondary); line-height: 1.35;
+}
+.maturity-lane-cell::before {
+    content: ''; position: absolute; top: 0; left: 0; bottom: 0;
+    background: linear-gradient(90deg, rgba(34,221,255,0.1), rgba(168,85,255,0.08));
+    z-index: 0;
+}
+.maturity-lane-cell[data-fill="1"]::before { width: 33%; }
+.maturity-lane-cell[data-fill="2"]::before { width: 66%; }
+.maturity-lane-cell[data-fill="3"]::before { width: 100%; }
+.maturity-lane-cell > span { position: relative; z-index: 1; }
+.maturity-loop-arrow {
+    position: absolute; bottom: -0.9rem; left: 50%;
+    transform: translateX(-50%);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem; font-weight: 600; letter-spacing: 0.08em;
+    text-transform: uppercase; color: #fff;
+    background: var(--gradient-cool);
+    padding: 0.35rem 1rem; border-radius: 999px;
+    box-shadow: 0 6px 18px rgba(34,221,255,0.3);
+    white-space: nowrap;
+}
+.maturity-loop-arrow::before { content: '↻ '; font-size: 1rem; }
+
+/* KPIs slide (merged SDLC + governance) */
+.kpis-section-divider {
+    display: flex; align-items: center; gap: 0.8rem;
+    margin: 1.2rem 0 0.8rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem; font-weight: 600; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--text-muted);
+}
+.kpis-section-divider::before { content: '▸'; color: var(--accent-orange); font-size: 0.9rem; }
+.kpis-section-divider::after {
+    content: ''; flex: 1; height: 1px;
+    background: linear-gradient(90deg, rgba(168,85,255,0.5) 0%, transparent 100%);
+}
+.sdlc-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.9rem;
+}
+.sdlc-card {
+    position: relative; overflow: hidden;
+    background: linear-gradient(180deg, var(--bg-card) 0%, var(--bg-elevated) 100%);
+    border: var(--border-subtle); border-radius: 12px;
+    padding: 0.9rem 1rem;
+    display: flex; flex-direction: column; gap: 0.55rem;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.sdlc-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-glow); }
+.sdlc-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0;
+    height: 3px;
+}
+.sdlc-card[data-cat="delivery"]::before { background: var(--accent-cyan); }
+.sdlc-card[data-cat="quality"]::before  { background: var(--accent-purple); }
+.sdlc-card[data-cat="value"]::before    { background: var(--accent-orange); }
+.sdlc-card[data-cat="ai"]::before       { background: var(--accent-pink); }
+.sdlc-card .cat-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--text-primary); font-weight: 600;
+}
+.sdlc-card[data-cat="delivery"] .cat-name { color: var(--accent-cyan); }
+.sdlc-card[data-cat="quality"] .cat-name  { color: var(--accent-purple); }
+.sdlc-card[data-cat="value"] .cat-name    { color: var(--accent-orange); }
+.sdlc-card[data-cat="ai"] .cat-name       { color: var(--accent-pink); }
+.sdlc-metric {
+    display: flex; justify-content: space-between; align-items: baseline;
+    gap: 0.6rem;
+    padding-top: 0.4rem;
+    border-top: 1px dashed rgba(255,255,255,0.08);
+}
+.sdlc-metric:first-of-type { border-top: none; padding-top: 0; }
+.sdlc-metric .m-name {
+    font-size: 0.78rem; color: var(--text-muted); line-height: 1.2;
+}
+.sdlc-metric .m-delta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.05rem; font-weight: 700; color: var(--accent-orange);
+    white-space: nowrap;
+}
+.sdlc-metric.is-target .m-delta { color: var(--accent-cyan); }
+
+.gov-grid {
+    display: grid; grid-template-columns: repeat(6, 1fr); gap: 0.7rem;
+}
+.gov-card {
+    position: relative; overflow: hidden;
+    background: var(--bg-card);
+    border: var(--border-subtle); border-radius: 12px;
+    padding: 0.85rem 0.8rem;
+    display: flex; flex-direction: column; gap: 0.4rem;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.gov-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-glow); }
+.gov-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0;
+    height: 3px; background: var(--gradient-cool);
+}
+.gov-card .gov-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.66rem; font-weight: 600; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--accent-purple);
+}
+.gov-card .gov-name {
+    font-size: 0.78rem; color: var(--text-secondary); line-height: 1.3;
+    min-height: 2.4em;
+}
+.gov-progress {
+    display: flex; flex-direction: column; align-items: center; gap: 0.25rem;
+    margin-top: 0.4rem;
+}
+.gov-pill-baseline {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem; color: var(--text-muted);
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    padding: 0.15rem 0.55rem; border-radius: 999px;
+}
+.gov-arrow {
+    font-size: 1.1rem; line-height: 1;
+    background: var(--gradient-hot);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    font-weight: 700;
+}
+.gov-pill-target {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.95rem; font-weight: 700; color: #fff;
+    background: var(--gradient-hot);
+    padding: 0.2rem 0.7rem; border-radius: 999px;
+    box-shadow: 0 4px 14px rgba(255,68,119,0.25);
+}
+
+/* Dashboard mockup (DevLake slide) */
+.dashboard-mock {
+    background: linear-gradient(180deg, #0f0f17 0%, #14141f 100%);
+    border: var(--border-subtle); border-radius: 14px;
+    padding: 1rem 1.1rem;
+    display: flex; flex-direction: column; gap: 0.8rem;
+    box-shadow: 0 14px 40px rgba(0,0,0,0.45);
+    font-family: 'Sora', sans-serif;
+}
+.dash-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.dash-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem; font-weight: 600; color: var(--text-primary);
+    letter-spacing: 0.05em;
+}
+.dash-meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.66rem; color: var(--text-muted);
+    display: flex; align-items: center; gap: 0.4rem;
+}
+.dash-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: #22c55e; box-shadow: 0 0 6px #22c55e;
+    animation: dash-pulse 2s infinite;
+}
+@keyframes dash-pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+.dash-tiles {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.55rem;
+}
+.dash-tile {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 8px; padding: 0.55rem 0.65rem;
+    display: flex; flex-direction: column; gap: 0.2rem;
+}
+.t-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--text-muted);
+}
+.t-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.35rem; font-weight: 700; color: var(--text-primary);
+    line-height: 1.1;
+}
+.t-value .t-unit { font-size: 0.7rem; color: var(--text-muted); margin-left: 0.15rem; }
+.t-delta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem; font-weight: 700;
+}
+.t-delta.is-up   { color: #22c55e; }
+.t-delta.is-down { color: var(--accent-cyan); }
+.t-delta.is-warn { color: var(--accent-orange); }
+.sparkline {
+    display: flex; align-items: flex-end; gap: 2px;
+    height: 22px; margin-top: 0.2rem;
+}
+.sparkline span {
+    flex: 1; background: linear-gradient(180deg, var(--accent-cyan), var(--accent-purple));
+    border-radius: 1px; opacity: 0.85;
+}
+.dash-row {
+    display: grid; grid-template-columns: 1.4fr 1fr; gap: 0.7rem;
+}
+.dash-panel {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 8px; padding: 0.7rem 0.8rem;
+    display: flex; flex-direction: column; gap: 0.45rem;
+}
+.panel-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--text-muted);
+}
+.bar-row { display: grid; grid-template-columns: 60px 1fr 38px; align-items: center; gap: 0.5rem; }
+.bar-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem; color: var(--text-secondary);
+}
+.bar-track {
+    height: 8px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden;
+}
+.bar-fill {
+    height: 100%; border-radius: 4px;
+    background: var(--gradient-hot);
+}
+.bar-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem; color: var(--text-primary); font-weight: 600; text-align: right;
+}
+.donut-wrap {
+    display: flex; align-items: center; justify-content: center;
+    flex: 1;
+}
+.donut {
+    --val: 52;
+    width: 90px; height: 90px; border-radius: 50%;
+    background: conic-gradient(
+        var(--accent-cyan) 0%,
+        var(--accent-purple) calc(var(--val) * 1%),
+        rgba(255,255,255,0.06) calc(var(--val) * 1%) 100%
+    );
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+}
+.donut::before {
+    content: ''; position: absolute; inset: 8px;
+    background: #0f0f17; border-radius: 50%;
+}
+.donut-value {
+    position: relative; z-index: 1;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.1rem; font-weight: 700; color: var(--text-primary);
+}
+.donut-legend {
+    display: flex; flex-direction: column; gap: 0.35rem;
+    margin-left: 0.7rem;
+}
+.donut-legend-item {
+    display: flex; align-items: center; gap: 0.4rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem; color: var(--text-muted);
+}
+.donut-legend-item::before {
+    content: ''; width: 8px; height: 8px; border-radius: 2px;
+    background: var(--swatch, var(--accent-cyan));
+}
+
+/* Knowledge graph (slide 15) */
+.knowledge-graph {
+    width: 100%; max-width: 520px;
+    margin-top: 1rem;
+}
+.knowledge-graph svg { width: 100%; height: auto; display: block; }
+.kg-hub-label {
+    font-family: 'Sora', sans-serif;
+    font-weight: 700; font-size: 13px;
+    fill: var(--text-primary);
+    text-anchor: middle;
+}
+.kg-hub-sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; letter-spacing: 0.06em;
+    fill: var(--text-muted);
+    text-anchor: middle;
+}
+.kg-sat-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    fill: var(--text-secondary);
+    text-anchor: middle;
+}
+
+/* Info box (replaces tables) */
+.info-box {
+    background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-elevated) 100%);
+    border: var(--border-subtle); border-radius: 14px; padding: 1.25rem 1.5rem;
+    position: relative; overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.info-box:hover { transform: translateY(-3px); box-shadow: var(--shadow-glow); }
+.info-box::before {
+    content: ''; position: absolute; top: 0; left: 0;
+    width: 4px; height: 100%; background: var(--gradient-hot);
+}
+.info-box h5 {
+    font-size: 0.95rem; font-weight: 700; color: var(--text-primary);
+    margin-bottom: 0.4rem;
+}
+.info-box .info-meta {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.7rem;
+    color: var(--accent-cyan); text-transform: uppercase; letter-spacing: 0.1em;
+    margin-bottom: 0.4rem;
+}
+.info-box p { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5; }
+.info-box .info-tag {
+    display: inline-block; margin-top: 0.5rem;
+    font-family: 'JetBrains Mono', monospace; font-size: 0.7rem;
+    padding: 0.2rem 0.6rem; border-radius: 10px;
+    background: var(--bg-elevated); color: var(--accent-orange);
+}
+
+/* KPI box */
+.kpi-box {
+    background: var(--bg-card); border-radius: 14px; padding: 1.25rem;
+    border: var(--border-subtle); position: relative; overflow: hidden;
+    text-align: center;
+}
+.kpi-box::after {
+    content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+    height: 3px; background: var(--gradient-hot);
+}
+.kpi-box .kpi-category {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.65rem;
+    color: var(--accent-cyan); text-transform: uppercase; letter-spacing: 0.15em;
+    margin-bottom: 0.5rem;
+}
+.kpi-box .kpi-name {
+    font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem; line-height: 1.3;
+}
+.kpi-box .kpi-target {
+    font-size: 1.5rem; font-weight: 800;
+    background: var(--gradient-hot); -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent; background-clip: text;
+}
+
+/* Comparison box */
+.compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; margin-top: 1rem; }
+.compare-col { display: flex; flex-direction: column; gap: 0; }
+.compare-header {
+    padding: 0.75rem 1.25rem; font-weight: 700; font-size: 0.9rem;
+    text-transform: uppercase; letter-spacing: 0.05em;
+}
+.compare-header.before { background: var(--bg-elevated); color: var(--text-muted); border-radius: 12px 0 0 0; }
+.compare-header.after {
+    background: linear-gradient(135deg, rgba(255,107,53,0.15) 0%, rgba(255,68,119,0.1) 100%);
+    color: var(--accent-orange); border-radius: 0 12px 0 0;
+}
+.compare-item {
+    padding: 0.6rem 1.25rem; font-size: 0.85rem; color: var(--text-secondary);
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.compare-col:first-child .compare-item { background: rgba(255,255,255,0.02); }
+.compare-col:last-child .compare-item {
+    background: linear-gradient(135deg, rgba(255,107,53,0.04) 0%, rgba(255,68,119,0.02) 100%);
+    color: var(--text-primary);
+}
+.compare-label {
+    font-weight: 600; color: var(--accent-orange); font-size: 0.75rem;
+    text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.2rem;
+}
+
+/* Stats */
+.stats-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1.5rem; margin: 1.5rem 0;
+}
+.stat {
+    text-align: center; padding: 1.5rem;
+    background: var(--bg-card); border-radius: 16px; border: var(--border-subtle);
+    position: relative; overflow: hidden;
+}
+.stat::before {
+    content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+    height: 3px; background: var(--gradient-hot);
+}
+.stat-value {
+    font-size: 2.5rem; font-weight: 800;
+    background: var(--gradient-hot); -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent; background-clip: text;
+    line-height: 1;
+}
+.stat-label {
+    font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.5rem;
+    text-transform: uppercase; letter-spacing: 0.1em;
+}
+
+/* Quote */
+.quote {
+    font-size: clamp(1.2rem, 2vw, 1.6rem);
+    font-weight: 400; font-style: italic;
+    color: var(--text-primary);
+    border-left: 5px solid var(--accent-orange);
+    padding-left: 2rem; margin: 1.5rem 0;
+    max-width: 1200px;
+}
+
+/* Feature list */
+ul.feature-list { list-style: none; margin: 1rem 0; }
+ul.feature-list li {
+    position: relative; padding-left: 2rem; margin-bottom: 0.8rem;
+    color: var(--text-secondary); font-size: 1.05rem;
+}
+ul.feature-list li::before {
+    content: '\2192'; position: absolute; left: 0;
+    color: var(--accent-orange); font-weight: 600;
+}
+ul.feature-list li strong { color: var(--text-primary); }
+
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; align-items: start; }
+
+/* Flow diagram */
+.flow-diagram {
+    display: flex; align-items: center; justify-content: center;
+    gap: 0.8rem; flex-wrap: wrap; padding: 1.5rem;
+}
+.flow-step {
+    background: var(--bg-elevated); border: var(--border-subtle); border-radius: 12px;
+    padding: 1rem 1.5rem; text-align: center; min-width: 130px; position: relative;
+}
+.flow-step h5 { font-size: 0.95rem; color: var(--text-primary); font-weight: 600; }
+.flow-step p { font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.3rem; }
+.flow-arrow { color: var(--accent-orange); font-size: 1.5rem; opacity: 0.6; }
+
+/* Diagram / Layers */
+.diagram {
+    background: var(--bg-card); border: var(--border-subtle); border-radius: 20px;
+    padding: 2rem; margin: 1rem 0; position: relative; overflow: hidden;
+}
+.diagram::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0;
+    height: 3px; background: var(--gradient-hot);
+}
+.layers-diagram { display: flex; flex-direction: column; gap: 0.8rem; }
+.layer {
+    padding: 1.2rem 1.5rem; border-radius: 12px;
+    position: relative; transition: all 0.3s ease;
+}
+.layer:hover { transform: translateX(4px); }
+.layer-tools {
+    background: linear-gradient(135deg, rgba(136,136,160,0.1) 0%, rgba(136,136,160,0.05) 100%);
+    border: 1px dashed rgba(136,136,160,0.3);
+}
+.layer-knowledge {
+    background: linear-gradient(135deg, rgba(255,107,53,0.15) 0%, rgba(255,51,102,0.1) 100%);
+    border: 2px solid rgba(255,107,53,0.4);
+    box-shadow: 0 0 40px rgba(255,107,53,0.1);
+}
+.layer-label {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.75rem;
+    text-transform: uppercase; letter-spacing: 0.15em; color: var(--text-secondary);
+    margin-bottom: 0.3rem;
+}
+.layer-title { font-size: 1.1rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.3rem; }
+.layer-desc { font-size: 0.85rem; color: var(--text-secondary); }
+.layer-commodity {
+    position: absolute; right: 1.5rem; top: 50%; transform: translateY(-50%);
+    font-family: 'JetBrains Mono', monospace; font-size: 0.75rem;
+    padding: 0.3rem 0.8rem; border-radius: 20px;
+    background: rgba(136,136,160,0.25); color: var(--text-secondary);
+}
+.layer-value {
+    position: absolute; right: 1.5rem; top: 50%; transform: translateY(-50%);
+    font-family: 'JetBrains Mono', monospace; font-size: 0.75rem;
+    padding: 0.3rem 0.8rem; border-radius: 20px;
+    background: var(--gradient-fire); color: white; font-weight: 600;
+}
+
+/* Pillar cards */
+.pillars-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.2rem; margin-top: 1rem; }
+.pillar-card {
+    background: var(--bg-card); border-radius: 16px; padding: 1.25rem;
+    border: var(--border-subtle); position: relative; overflow: hidden;
+}
+.pillar-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0;
+    height: 4px; background: var(--gradient-hot);
+}
+.pillar-number {
+    position: absolute; top: 0.8rem; right: 0.8rem;
+    width: 28px; height: 28px; background: var(--bg-elevated); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'JetBrains Mono', monospace; font-size: 0.85rem;
+    font-weight: 600; color: var(--accent-orange);
+}
+.pillar-title { font-size: 1.1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.6rem; padding-right: 2rem; }
+.pillar-question { font-size: 0.85rem; color: var(--accent-cyan); margin-bottom: 0.5rem; font-style: italic; }
+.pillar-answer { font-size: 0.85rem; color: var(--text-secondary); }
+
+/* Timeline */
+.timeline { position: relative; padding-left: 3rem; }
+.timeline::before {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+    width: 3px; background: var(--gradient-hot); border-radius: 3px;
+}
+.timeline-item { position: relative; padding: 0.8rem 0; padding-left: 2rem; }
+.timeline-item::before {
+    content: ''; position: absolute; left: -3rem; top: 1.2rem;
+    width: 12px; height: 12px; background: var(--accent-orange);
+    border-radius: 50%; border: 3px solid var(--bg-deep);
+    box-shadow: 0 0 20px rgba(255, 107, 53, 0.5);
+}
+.timeline-date {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem; color: var(--accent-orange); font-weight: 600;
+}
+.timeline-content { color: var(--text-secondary); font-size: 0.95rem; margin-top: 0.3rem; }
+
+/* Adoption cards */
+.adoption-grid { display: flex; flex-direction: column; gap: 0.8rem; margin-top: 1rem; }
+.adoption-card {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;
+    background: var(--bg-card); border-radius: 14px; padding: 1rem 1.5rem;
+    border: var(--border-subtle); align-items: center;
+    transition: all 0.3s ease;
+}
+.adoption-card:hover { border-color: rgba(255,107,53,0.3); }
+.adoption-what { font-size: 0.9rem; color: var(--text-primary); }
+.adoption-result { font-size: 0.85rem; color: var(--text-secondary); }
+
+/* Axis label for architecture diagram */
+.axis-label {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.7rem;
+    text-transform: uppercase; letter-spacing: 0.15em;
+    color: var(--text-muted); text-align: center; padding: 0.5rem 0;
+}
+.axis-label span { opacity: 0.6; }
+.axis-arrow {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.25rem 1rem; font-size: 0.65rem; color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace; text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+/* Transversal bars for architecture */
+.transversal-bars {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-top: 0.8rem;
+}
+.transversal-bar {
+    background: linear-gradient(90deg, var(--bg-elevated) 0%, rgba(255,107,53,0.08) 50%, var(--bg-elevated) 100%);
+    border-radius: 8px; padding: 0.6rem 1rem; text-align: center;
+    font-size: 0.75rem; color: var(--text-secondary);
+    text-transform: uppercase; letter-spacing: 0.08em;
+    border: 1px dashed rgba(255,255,255,0.08);
+}
+
+/* Nav */
+.nav {
+    position: fixed; bottom: 1rem; left: 50%; transform: translateX(-50%);
+    display: flex; align-items: center; gap: 0.5rem;
+    background: rgba(18, 18, 26, 0.85); backdrop-filter: blur(20px);
+    padding: 0.4rem 0.8rem; border-radius: 30px; border: var(--border-subtle); z-index: 100;
+}
+.nav-btn {
+    width: 28px; height: 28px; border-radius: 50%; border: none;
+    background: var(--bg-elevated); color: var(--text-primary); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.3s ease; font-size: 0.85rem;
+}
+.nav-btn:hover { background: var(--accent-orange); transform: scale(1.1); }
+.nav-btn:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
+.slide-counter {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.7rem;
+    color: var(--text-secondary); min-width: 45px; text-align: center;
+}
+
+.progress-bar {
+    position: fixed; top: 0; left: 0; height: 3px;
+    background: var(--gradient-hot); transition: width 0.3s ease; z-index: 200;
+}
+.section-indicator { display: none; }
+
+/* Top Nav Menu */
+.top-nav {
+    position: fixed; top: 3px; left: 0; right: 0; z-index: 150;
+    font-family: 'Sora', sans-serif;
+    background: rgba(10, 10, 15, 0.92); backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    transition: opacity 0.3s ease;
+}
+.title-slide.active ~ .top-nav,
+.slide.active[data-section="Cierre"] ~ .top-nav { opacity: 0; pointer-events: none; }
+.nav-sections {
+    display: flex; justify-content: center; align-items: center;
+    gap: 0; height: 36px; padding: 0 1rem;
+}
+.nav-section {
+    position: relative; padding: 0 1.2rem; height: 100%;
+    display: flex; align-items: center; cursor: pointer;
+    font-size: 0.75rem; font-weight: 600; letter-spacing: 0.05em;
+    text-transform: uppercase; color: var(--text-secondary);
+    transition: color 0.2s ease;
+}
+.nav-section:hover { color: var(--text-primary); }
+.nav-section.active { color: var(--accent-orange); }
+.nav-section::after {
+    content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 0; height: 2px; background: var(--accent-orange);
+    transition: width 0.2s ease;
+}
+.nav-section.active::after { width: 70%; }
+
+/* Submenu */
+.nav-submenu {
+    position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+    background: rgba(18, 18, 26, 0.95); backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.08); border-radius: 10px;
+    padding: 0.5rem 0; min-width: 220px; max-width: 320px;
+    opacity: 0; visibility: hidden; pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    transform: translateX(-50%) translateY(4px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+.nav-section:hover .nav-submenu {
+    opacity: 1; visibility: visible; pointer-events: auto;
+    transform: translateX(-50%) translateY(0);
+}
+.nav-sub-item {
+    display: block; padding: 0.45rem 1.2rem;
+    font-size: 0.7rem; font-weight: 400; text-transform: none;
+    letter-spacing: 0; color: var(--text-secondary);
+    white-space: nowrap; transition: all 0.15s ease; cursor: pointer;
+}
+.nav-sub-item:hover { color: var(--text-primary); background: rgba(255,255,255,0.04); }
+.nav-sub-item.active { color: var(--accent-orange); }
+.nav-sub-item .sub-num {
+    display: inline-block; width: 1.6em; color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace; font-size: 0.65rem;
+}
+
+.keyboard-hint {
+    position: fixed; bottom: 3.5rem; left: 50%; transform: translateX(-50%);
+    font-size: 0.7rem; color: var(--text-secondary); opacity: 0.5; z-index: 100;
+}
+.keyboard-hint kbd {
+    background: var(--bg-elevated); padding: 0.25rem 0.6rem;
+    border-radius: 4px; font-family: 'JetBrains Mono', monospace; margin: 0 0.2rem;
+}
+
+.logo { position: fixed; top: 0.5rem; left: 1.2rem; z-index: 200; opacity: 0.8; height: 40px; }
+.logo svg { height: 100%; width: auto; }
+
+.bg-effects { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+.bg-effects::before {
+    content: ''; position: absolute; top: -50%; right: -30%; width: 100%; height: 150%;
+    background: radial-gradient(ellipse at center, rgba(255,107,53,0.08) 0%, transparent 60%);
+    animation: pulse 8s ease-in-out infinite;
+}
+.bg-effects::after {
+    content: ''; position: absolute; bottom: -30%; left: -20%; width: 80%; height: 100%;
+    background: radial-gradient(ellipse at center, rgba(153,69,255,0.06) 0%, transparent 50%);
+    animation: pulse 10s ease-in-out infinite reverse;
+}
+.noise {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    opacity: 0.03; pointer-events: none; z-index: 1000;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 0.5; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.1); }
+}
+
+.edit-toggle {
+    position: fixed; bottom: 2rem; right: 2rem;
+    width: 36px; height: 36px; border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-muted); cursor: pointer; z-index: 101;
+    opacity: 0.3; transition: all 0.3s ease; font-size: 0.9rem;
+}
+.edit-toggle:hover { opacity: 1; background: var(--accent-orange); color: white; }
+.edit-toggle.active { opacity: 1; background: var(--accent-pink); }
+.edit-mode [contenteditable="true"] { outline: 2px dashed rgba(255,122,74,0.4); outline-offset: 4px; cursor: text; }
+.edit-mode [contenteditable="true"]:focus { outline: 2px solid var(--accent-orange); background: rgba(255,122,74,0.05); }
+
+@media (max-width: 1024px) {
+    .slide { padding: 40px; }
+    .two-col, .grid-4, .pillars-grid, .problem-arrows { grid-template-columns: 1fr 1fr; gap: 1rem; }
+}
+@media (max-width: 768px) {
+    .slide { padding: 30px 20px; }
+    .nav { bottom: 1rem; padding: 0.5rem 1rem; }
+    .keyboard-hint { display: none; }
+    .card-grid, .grid-4, .pillars-grid, .problem-arrows { grid-template-columns: 1fr; }
+    .two-col { grid-template-columns: 1fr; }
+}
+    </style>
+</head>
+<script src="https://accounts.google.com/gsi/client"></script>
+<body>
+<div id="auth-gate" style="position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#100D25;color:#fff;font-family:Arial,Helvetica,sans-serif;text-align:center;padding:2rem;">
+    <h2 style="font-size:1.5rem;margin-bottom:0.5rem;">KDD Documentation</h2>
+    <p style="color:rgba(255,255,255,0.5);font-size:0.95rem;margin-bottom:2rem;">Sign in with your corporate account to continue</p>
+    <div id="auth-gate-btn"></div>
+    <p id="auth-gate-error" style="color:#D13B5F;font-size:0.85rem;margin-top:1rem;display:none;"></p>
+</div>
+    <div class="presentation">
+        <div class="bg-effects"></div>
+        <div class="noise"></div>
+        <div class="progress-bar" id="progressBar"></div>
+        <svg xmlns="http://www.w3.org/2000/svg" style="position:absolute;width:0;height:0;overflow:hidden">
+            <symbol id="nfq-white" viewBox="0 0 312.29 145.88">
+                <defs>
+                    <linearGradient id="wg1" x1="16.08" y1="4553.95" x2="16.08" y2="4644.91" gradientTransform="translate(0 4667.61) scale(1 -1)" gradientUnits="userSpaceOnUse">
+                        <stop offset=".25" stop-color="#ec683e"/><stop offset="1" stop-color="#d13b5f"/>
+                    </linearGradient>
+                    <linearGradient id="wg2" x1="16.08" y1="4584.43" x2="16.08" y2="4660.83" gradientTransform="translate(0 4667.61) scale(1 -1)" gradientUnits="userSpaceOnUse">
+                        <stop offset="0" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000"/>
+                    </linearGradient>
+                    <linearGradient id="wg3" x1="14.82" y1="4649.54" x2="81.61" y2="4552.17" gradientTransform="translate(0 4667.61) scale(1 -1)" gradientUnits="userSpaceOnUse">
+                        <stop offset=".25" stop-color="#d13b5f"/><stop offset="1" stop-color="#217bee"/>
+                    </linearGradient>
+                    <linearGradient id="wg4" x1="46.31" y1="4603.85" x2="80.07" y2="4550.73" gradientTransform="translate(0 4667.61) scale(1 -1)" gradientUnits="userSpaceOnUse">
+                        <stop offset="0" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000"/>
+                    </linearGradient>
+                    <clipPath id="wclip"><rect x=".17" y="6.44" width="96.46" height="120"/></clipPath>
+                </defs>
+                <g clip-path="url(#wclip)">
+                    <path fill="url(#wg1)" d="M32.16,108.22L0,126.78V25.34L32.15,6.78v101.44Z"/>
+                    <path fill="url(#wg2)" fill-opacity=".3" d="M32.16,108.22L0,126.78V25.34L32.15,6.78v101.44Z"/>
+                    <path fill="url(#wg3)" d="M96.46,108.22l-32.16,18.56L0,25.34,32.15,6.78l64.31,101.44Z"/>
+                    <path fill="url(#wg4)" fill-opacity=".2" d="M96.46,108.22l-32.16,18.56L0,25.34,32.15,6.78l64.31,101.44Z"/>
+                    <path fill="#217bee" d="M96.46,108.22l-32.16,18.56V25.34L96.46,6.78v101.44Z"/>
+                </g>
+                <path fill="#fff" d="M312.01,35.56l-17.64,12.6c-3.92-8.54-12.46-13.16-21.28-13.16-13.58,0-28,10.92-28,35.42s13.02,35.56,26.18,35.56c10.08,0,20.3-6.86,24.92-20.3v60.2h16.1V35.56h-.28ZM296.19,70.98c-.14,18.06-8.68,27.02-17.22,27.02s-17.22-9.1-17.22-27.58c0-20.02,9.1-29.68,17.92-29.68,8.26,0,16.38,8.54,16.52,24.64v5.6Z"/>
+                <path fill="#fff" d="M251.33,19.46c-11.06-10.5-18.62-15.68-22.82-15.68-2.94,0-4.34,2.38-4.34,7.14v25.62h21.98v3.08h-21.98v64.82h-16.24V39.62h-9.8v-3.08h9.8v-1.54c0-27.86,13.72-35,28.56-35,5.04,0,10.22.84,14.98,1.96l-.14,17.5Z"/>
+                <path fill="#fff" d="M146.41,51.24c5.88-11.2,15.12-16.24,23.94-16.24,12.46,0,24.08,9.94,24.08,26.04v43.4h-16.1v-40.32c0-14.84-6.72-22.12-14.42-22.12-6.16,0-13.16,4.9-17.5,14.42v48.02h-16.1V38.92l15.82-3.36h.28v15.68Z"/>
+            </symbol>
+        </svg>
+        <div class="logo"><svg viewBox="0 0 312.29 145.88"><use href="#nfq-white"/></svg></div>
+        <!-- Top Navigation -->
+        <div class="top-nav" id="topNav">
+            <div class="nav-sections" id="navSections"></div>
+        </div>
+
+        <!-- Slide 1: Portada -->
+        <div class="slide title-slide active" data-section="Intro">
+            <div class="slide-content">
+                <h1>AI 4 SDLC</h1>
+                <p class="subtitle">Inteligencia artificial aplicada al ciclo de vida del software</p>
+                <div class="meta">
+                    <span>Abril 2026</span>
+                    <span>NWorld</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 2: Índice -->
+        <div class="slide" data-section="Intro">
+            <div class="slide-content">
+                <h4>Agenda</h4>
+                <h2>&Iacute;ndice</h2>
+                <div class="grid-4" style="margin-top: 2rem;">
+                    <div class="feature-card">
+                        <h4>01</h4>
+                        <h3>El reto</h3>
+                        <p>Velocidad, riesgos y experiencias</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>02</h4>
+                        <h3>Nuestra visi&oacute;n</h3>
+                        <p>Knowledge-Driven AI: pilares, taxonom&iacute;a y arquitectura</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>03</h4>
+                        <h3>La importancia de medir</h3>
+                        <p>Framework DORA + SPACE + AI y KPIs concretos</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>04</h4>
+                        <h3>El c&oacute;mo</h3>
+                        <p>Activos propietarios y hoja de ruta</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: Section divider - El reto -->
+        <div class="slide" data-section="El reto">
+            <div class="slide-content section-divider">
+                <div class="section-number">01</div>
+                <h1>El reto</h1>
+            </div>
+        </div>
+
+        <!-- Slide 4: IA en el desarrollo -->
+        <div class="slide" data-section="El reto">
+            <div class="slide-content">
+                <h4>El reto</h4>
+                <h2>IA en el desarrollo: velocidad sin precedentes</h2>
+                <p class="lead">La adopci&oacute;n de IA en desarrollo de software es masiva &mdash; y los resultados son reales.</p>
+                <div class="stats-grid" style="margin-top: 1.5rem;">
+                    <div class="stat">
+                        <div class="stat-value">92%</div>
+                        <div class="stat-label">Developers usando IA</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">70%+</div>
+                        <div class="stat-label">Organizaciones con copilots</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">~50%</div>
+                        <div class="stat-label">Mejora productividad (Anthropic)</div>
+                    </div>
+                </div>
+                <div class="card-grid" style="margin-top: 1.5rem;">
+                    <div class="feature-card">
+                        <h4>Velocidad</h4>
+                        <p>Ciclos de desarrollo que tomaban semanas se comprimen a d&iacute;as</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Democratizaci&oacute;n</h4>
+                        <p>La barrera de entrada se reduce dr&aacute;sticamente</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Optimizaci&oacute;n exponencial</h4>
+                        <p>C&oacute;digo, tests, docs y revisiones automatizadas</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: La otra cara de la velocidad -->
+        <div class="slide" data-section="El reto">
+            <div class="slide-content">
+                <h4>El reto</h4>
+                <h2>La otra cara de la velocidad</h2>
+                <p class="lead">Los beneficios son innegables &mdash; pero no son autom&aacute;ticos ni inmediatos.</p>
+                <div class="card-grid" style="margin-top: 1.5rem;">
+                    <div class="feature-card">
+                        <h4>No todos somos Anthropic</h4>
+                        <p>El ~50% de mejora viene de un equipo &eacute;lite, con ingenier&iacute;a de contexto avanzada y procesos maduros.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Velocidad para construir... y destruir</h4>
+                        <p>La misma aceleraci&oacute;n que entrega features genera deuda t&eacute;cnica a velocidad industrial.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Falta de homogeneidad</h4>
+                        <p>Cada equipo adopta herramientas distintas, generando resultados imposibles de gobernar.</p>
+                    </div>
+                </div>
+                <p class="quote">La IA amplifica lo que ya tienes: si tienes m&eacute;todo, amplifica resultados. Si no, amplifica el caos.</p>
+            </div>
+        </div>
+
+        <!-- Slide 6: Por qué fallan (REDESIGNED - 4-col grid with problem boxes) -->
+        <div class="slide" data-section="El reto">
+            <div class="slide-content">
+                <h4>El reto</h4>
+                <h2>Vibe coding: the wrong way</h2>
+                <div class="grid-4" style="margin-top: 1.5rem;">
+                    <div class="problem-box">
+                        <div class="box-title">Tool-first adoption</div>
+                        <div class="box-problem">Cada equipo elige su herramienta: ChatGPT, Claude, Gemini, Cursor, Copilot...</div>
+                        <div class="box-solution">Ausencia de est&aacute;ndares. Conocimiento no reutilizable. &iquest;Invierto o espero?</div>
+                    </div>
+                    <div class="problem-box">
+                        <div class="box-title">Black-Box by design</div>
+                        <div class="box-problem">Prototipado r&aacute;pido, pero mantenimiento y escalado imposibles</div>
+                        <div class="box-solution">El &ldquo;vibe coding&rdquo; genera c&oacute;digo que funciona pero nadie entiende por qu&eacute;</div>
+                    </div>
+                    <div class="problem-box">
+                        <div class="box-title">Infinite rewrites</div>
+                        <div class="box-problem">Imposibilidad de transmitir instrucciones precisas a los modelos</div>
+                        <div class="box-solution">Fast start, forced restart: el prototipo de hoy es la deuda de ma&ntilde;ana</div>
+                    </div>
+                    <div class="problem-box">
+                        <div class="box-title">Falta de governance</div>
+                        <div class="box-problem">&iquest;D&oacute;nde agentes? &iquest;D&oacute;nde copilots? Sin metodolog&iacute;a replicable</div>
+                        <div class="box-solution">ROI imposible de demostrar sin un framework de medici&oacute;n</div>
+                    </div>
+                </div>
+                <p class="quote">Sin m&eacute;todo es imposible escalar.</p>
+            </div>
+        </div>
+
+        <!-- Slide 7: ¿Dónde está el problema? (REDESIGNED - same 4-col grid) -->
+        <div class="slide" data-section="El reto">
+            <div class="slide-content">
+                <h4>El reto</h4>
+                <h2>&iquest;D&oacute;nde est&aacute; el problema?</h2>
+                <p class="lead" style="margin-bottom: 0.5rem;">No son problemas de herramientas. Son problemas de <span class="highlight">conocimiento</span>.</p>
+                <div class="grid-4" style="margin-top: 1.5rem;">
+                    <div class="problem-box problem-box--top">
+                        <div class="box-title">Tool-first</div>
+                        <div class="box-problem">El conocimiento depende de la herramienta del momento</div>
+                    </div>
+                    <div class="problem-box problem-box--top">
+                        <div class="box-title">Black-Box</div>
+                        <div class="box-problem">Las reglas de arquitectura no se plasman en ning&uacute;n formato consumible</div>
+                    </div>
+                    <div class="problem-box problem-box--top">
+                        <div class="box-title">Infinite rewrites</div>
+                        <div class="box-problem">El contexto vive en prompts ef&iacute;meros que se pierden</div>
+                    </div>
+                    <div class="problem-box problem-box--top">
+                        <div class="box-title">Governance</div>
+                        <div class="box-problem">Adopci&oacute;n heterog&eacute;nea, imposible de gobernar</div>
+                    </div>
+                </div>
+                <div class="problem-arrows" aria-hidden="true">
+                    <span>&darr;</span><span>&darr;</span><span>&darr;</span><span>&darr;</span>
+                </div>
+                <div class="grid-4">
+                    <div class="problem-box problem-box--bottom">
+                        <div class="box-solution">&iquest;Y si pudi&eacute;ramos separar el conocimiento de la herramienta?</div>
+                    </div>
+                    <div class="problem-box problem-box--bottom">
+                        <div class="box-solution">&iquest;Y si cualquier IA pudiera consumirlas &mdash; y cumplirlas?</div>
+                    </div>
+                    <div class="problem-box problem-box--bottom">
+                        <div class="box-solution">&iquest;Y si el contexto viviera en artefactos que evolucionan con el c&oacute;digo?</div>
+                    </div>
+                    <div class="problem-box problem-box--bottom">
+                        <div class="box-solution">&iquest;Y si la adopci&oacute;n fuera homog&eacute;nea, medible y gobernable?</div>
+                    </div>
+                </div>
+                <p class="quote">La respuesta pasa por lo mismo: <strong>estructurar el conocimiento</strong> para que trabaje para nosotros.</p>
+            </div>
+        </div>
+
+        <!-- Slide 8: Section divider - Nuestra visión -->
+        <div class="slide" data-section="Nuestra visi&oacute;n">
+            <div class="slide-content section-divider">
+                <div class="section-number">02</div>
+                <h1>Nuestra visi&oacute;n</h1>
+            </div>
+        </div>
+
+        <!-- Slide 8b: Índice de la sección -->
+        <div class="slide" data-section="Nuestra visi&oacute;n">
+            <div class="slide-content">
+                <h4>Nuestra visi&oacute;n</h4>
+                <h2>Lo que vamos a ver</h2>
+                <div class="grid-4" style="grid-template-columns: repeat(3, 1fr); margin-top: 2rem;">
+                    <div class="problem-box">
+                        <div class="box-title"><span style="color: var(--accent-orange); margin-right: 0.5rem;">01</span>Nuestro approach</div>
+                    </div>
+                    <div class="problem-box">
+                        <div class="box-title"><span style="color: var(--accent-orange); margin-right: 0.5rem;">02</span>Qu&eacute; cambia</div>
+                    </div>
+                    <div class="problem-box">
+                        <div class="box-title"><span style="color: var(--accent-orange); margin-right: 0.5rem;">03</span>Pilares</div>
+                    </div>
+                    <div class="problem-box">
+                        <div class="box-title"><span style="color: var(--accent-orange); margin-right: 0.5rem;">04</span>Arquitectura</div>
+                    </div>
+                    <div class="problem-box">
+                        <div class="box-title"><span style="color: var(--accent-orange); margin-right: 0.5rem;">05</span>M&eacute;todo de trabajo</div>
+                    </div>
+                    <div class="problem-box">
+                        <div class="box-title"><span style="color: var(--accent-orange); margin-right: 0.5rem;">06</span>Evoluci&oacute;n progresiva</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9: Knowledge-Driven AI (table → boxes) -->
+        <div class="slide" data-section="Nuestra visi&oacute;n">
+            <div class="slide-content">
+                <h4>Nuestro approach</h4>
+                <h2>Knowledge-Driven Development: nuestro approach</h2>
+                <p>No es una herramienta &mdash; es un marco metodológico que estructura y gu&iacute;a a los equipos de desarrollo.</p>
+                <div class="grid-4" style="margin-top: 1.5rem;">
+                    <div class="problem-box problem-box--top">
+                        <div class="box-title">Tool-first adoption</div>
+                        <div class="box-problem">Cada equipo elige su herramienta; el conocimiento queda atrapado en ella</div>
+                    </div>
+                    <div class="problem-box problem-box--top">
+                        <div class="box-title">Black-Box by design</div>
+                        <div class="box-problem">La intenci&oacute;n se diluye dentro del modelo; no hay contrato estable</div>
+                    </div>
+                    <div class="problem-box problem-box--top">
+                        <div class="box-title">Infinite rewrites</div>
+                        <div class="box-problem">El contexto se reescribe en cada prompt; no se capitaliza</div>
+                    </div>
+                    <div class="problem-box problem-box--top">
+                        <div class="box-title">Falta de governance</div>
+                        <div class="box-problem">Adopci&oacute;n heterog&eacute;nea sin m&eacute;tricas ni marco operativo</div>
+                    </div>
+                </div>
+                <div class="problem-arrows" aria-hidden="true">
+                    <span>&darr;</span><span>&darr;</span><span>&darr;</span><span>&darr;</span>
+                </div>
+                <div class="grid-4">
+                    <div class="problem-box problem-box--bottom">
+                        <div class="box-title">Knowledge-first</div>
+                        <div class="box-solution">El conocimiento vive en formato abierto (markdown/YAML en Git), independiente de cualquier herramienta o modelo</div>
+                    </div>
+                    <div class="problem-box problem-box--bottom">
+                        <div class="box-title">Specs</div>
+                        <div class="box-solution">Especificaciones como contratos estables: separan la intenci&oacute;n del modelo. Trazabilidad completa</div>
+                    </div>
+                    <div class="problem-box problem-box--bottom">
+                        <div class="box-title">Living context</div>
+                        <div class="box-solution">El conocimiento evoluciona con el c&oacute;digo &mdash; specs versionadas que se enriquecen proyecto a proyecto</div>
+                    </div>
+                    <div class="problem-box problem-box--bottom">
+                        <div class="box-title">M&eacute;todo com&uacute;n</div>
+                        <div class="box-solution">Marco operativo completo con governance diferenciado, m&eacute;tricas y adopci&oacute;n incremental</div>
+                    </div>
+                </div>
+                <p class="quote" style="max-width: none;">Las herramientas cambian cada seis meses. Estructurar el conocimiento es la única forma de escalar.</p>
+                <p style="margin-top: 0.8rem; padding-left: 2rem; font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; max-width: none;">
+                    La industria converge hacia este m&eacute;todo: AWS Kiro, GitHub Spec Kit, Google Conductor, Anthropic Claude Code, Thoughtworks Technology Radar e ICSE 2026 apuntan al spec-driven como pr&aacute;ctica clave.
+                </p>
+            </div>
+        </div>
+
+        <!-- Slide 10: Qué cambia con Knowledge-Driven -->
+        <div class="slide" data-section="Nuestra visi&oacute;n">
+            <div class="slide-content">
+                <h4>Qu&eacute; cambia</h4>
+                <h2>Qu&eacute; cambia con Knowledge-Driven</h2>
+                <div style="display: flex; flex-direction: column; gap: 1.5rem; margin-top: 1.5rem;">
+                    <!-- Sin Knowledge-Driven -->
+                    <div style="display: flex; align-items: center; gap: 2rem;">
+                        <h3 style="color: var(--text-muted); min-width: 180px; margin: 0; font-size: 1rem; text-align: right;">Sin Knowledge-Driven</h3>
+                        <div class="flow-diagram" style="justify-content: flex-start; padding: 1rem; flex: 1; flex-wrap: nowrap;">
+                            <div class="flow-step" style="min-width: auto; padding: 0.8rem 1.2rem;"><h5>Developer</h5></div>
+                            <span class="flow-arrow">&rarr;</span>
+                            <div class="flow-step" style="min-width: auto; padding: 0.8rem 1.2rem;"><h5>Prompt</h5></div>
+                            <span class="flow-arrow">&rarr;</span>
+                            <div class="flow-step" style="min-width: auto; padding: 0.8rem 1.2rem;"><h5>LLM</h5></div>
+                            <span class="flow-arrow">&rarr;</span>
+                            <div class="flow-step" style="min-width: auto; padding: 0.8rem 1.2rem;"><h5>C&oacute;digo</h5></div>
+                        </div>
+                        <div style="min-width: 240px;">
+                            <ul class="feature-list" style="margin: 0; font-size: 0.85rem;">
+                                <li>Prompts desde conocimiento individual</li>
+                                <li>Sin contexto organizativo</li>
+                                <li>Sin trazabilidad, sin governance</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <!-- Con Knowledge-Driven -->
+                    <div style="display: flex; align-items: center; gap: 2rem;">
+                        <h3 style="color: var(--accent-orange); min-width: 180px; margin: 0; font-size: 1rem; text-align: right;">Con Knowledge-Driven</h3>
+                        <div class="flow-diagram" style="justify-content: flex-start; padding: 1rem; flex: 1; flex-wrap: nowrap;">
+                            <div class="flow-step" style="min-width: auto; padding: 0.8rem 1.2rem; border-color: rgba(255,107,53,0.3);"><h5>Knowledge Base</h5></div>
+                            <span class="flow-arrow">&rarr;</span>
+                            <div class="flow-step" style="min-width: auto; padding: 0.8rem 1.2rem; border-color: rgba(255,107,53,0.3);"><h5>Spec + Prompt</h5></div>
+                            <span class="flow-arrow">&rarr;</span>
+                            <div class="flow-step" style="min-width: auto; padding: 0.8rem 1.2rem; border-color: rgba(255,107,53,0.3);"><h5>Agente + Dev</h5></div>
+                            <span class="flow-arrow">&rarr;</span>
+                            <div class="flow-step" style="min-width: auto; padding: 0.8rem 1.2rem; border-color: rgba(255,107,53,0.3);"><h5>C&oacute;digo gobernado</h5></div>
+                        </div>
+                        <div style="min-width: 240px;">
+                            <ul class="feature-list" style="margin: 0; font-size: 0.85rem;">
+                                <li>El conocimiento alimenta la spec</li>
+                                <li>La spec gu&iacute;a agente y developer</li>
+                                <li>C&oacute;digo trazable y reutilizable</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <p class="quote">El cambio no es usar mejores prompts. El objetivo es proporcionar el mejor contexto en cada tarea.</p>
+            </div>
+        </div>
+
+        <!-- Slide 11: Los cuatro pilares -->
+        <div class="slide" data-section="Nuestra visi&oacute;n">
+            <div class="slide-content">
+                <h4>Pilares</h4>
+                <h2>Los cuatro pilares</h2>
+                <div class="pillars-grid">
+                    <div class="pillar-card">
+                        <div class="pillar-number">1</div>
+                        <div class="pillar-title">Todo como c&oacute;digo</div>
+                        <p class="pillar-question">&iquest;C&oacute;mo hacemos el conocimiento gobernable y consumible por IA?</p>
+                        <p class="pillar-answer">Formato abierto, sin vendor lock-in, versionable</p>
+                    </div>
+                    <div class="pillar-card">
+                        <div class="pillar-number">2</div>
+                        <div class="pillar-title">Conocimiento</div>
+                        <p class="pillar-question">&iquest;C&oacute;mo estructuramos, gobernamos y versionamos el conocimiento?</p>
+                        <p class="pillar-answer">Taxonom&iacute;a multi-capa, governance diferenciado, spec-driven</p>
+                    </div>
+                    <div class="pillar-card">
+                        <div class="pillar-number">3</div>
+                        <div class="pillar-title">Evolutive</div>
+                        <p class="pillar-question">&iquest;C&oacute;mo crece el conocimiento con la pr&aacute;ctica?</p>
+                        <p class="pillar-answer">Evoluci&oacute;n sin reescrituras, co-evoluci&oacute;n c&oacute;digo-specs</p>
+                    </div>
+                    <div class="pillar-card">
+                        <div class="pillar-number">4</div>
+                        <div class="pillar-title">Agentic</div>
+                        <p class="pillar-question">&iquest;C&oacute;mo amplificamos las capacidades del equipo?</p>
+                        <p class="pillar-answer">Agentes operan sobre conocimiento estructurado, no sobre prompts</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 12: Pilar 1 - Todo como código -->
+        <div class="slide" data-section="Nuestra visi&oacute;n">
+            <div class="slide-content">
+                <h4>Pilares &middot; Pilar 1</h4>
+                <h2>Todo como c&oacute;digo</h2>
+                <p>Todo el conocimiento en ficheros markdown/YAML en repositorios Git.</p>
+                <div class="grid-4" style="margin-top: 1.5rem;">
+                    <div class="feature-card">
+                        <h4>Lenguaje natural</h4>
+                        <p>F&aacute;cil de usar por personas e IA</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Versionable y colaborativo</h4>
+                        <p>Historial completo de cambios, revisi&oacute;n por PR</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Formato abierto</h4>
+                        <p>Sin vendor lock-in &mdash; el conocimiento es tuyo, siempre</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Dual nature</h4>
+                        <p>Legible por humanos, parseable por m&aacute;quinas</p>
+                    </div>
+                </div>
+                <p class="quote" style="margin-top: 1.5rem;">El conocimiento deja de estar atrapado en wikis, Confluence o la cabeza de las personas. Vive donde vive el c&oacute;digo: en Git.</p>
+            </div>
+        </div>
+
+        <!-- Slide 14: Cómo aplicamos spec-driven -->
+        <div class="slide" data-section="Nuestra visi&oacute;n">
+            <div class="slide-content">
+                <h4>Pilares &middot; Pilar 2 &mdash; Conocimiento</h4>
+                <h2>C&oacute;mo aplicamos spec-driven de forma global</h2>
+                <p>Nuestra visi&oacute;n lleva el enfoque spec-driven <strong>m&aacute;s all&aacute; de la capa de proyecto</strong>, integr&aacute;ndolo en toda la organizaci&oacute;n:</p>
+                <div class="grid-4" style="margin-top: 1.5rem;">
+                    <div class="feature-card">
+                        <h4>Taxonom&iacute;a multi-capa</h4>
+                        <p>Architecture &rarr; Domain &rarr; Product &rarr; Feature &rarr; Documentation</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Governance diferenciado</h4>
+                        <p>Qui&eacute;n puede modificar qu&eacute;, con qu&eacute; proceso, por capa</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Co-evoluci&oacute;n</h4>
+                        <p>El conocimiento crece con cada proyecto, no se reescribe</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Orquestaci&oacute;n ag&eacute;ntica</h4>
+                        <p>Agentes que operan sobre specs, no sobre prompts</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 15: Taxonomía de conocimiento -->
+        <div class="slide" data-section="Nuestra visi&oacute;n">
+            <div class="slide-content">
+                <h4>Pilares &middot; Pilar 2 &mdash; Conocimiento</h4>
+                <h2>Taxonom&iacute;a de conocimiento</h2>
+                <div class="two-col" style="margin-top: 1rem;">
+                    <div>
+                        <h3>Tres dimensiones</h3>
+                        <div class="knowledge-graph">
+                            <svg viewBox="0 0 500 340" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Grafo de conocimiento con tres dimensiones">
+                                <defs>
+                                    <filter id="kgGlow" x="-50%" y="-50%" width="200%" height="200%">
+                                        <feGaussianBlur stdDeviation="3" result="blur"/>
+                                        <feMerge>
+                                            <feMergeNode in="blur"/>
+                                            <feMergeNode in="SourceGraphic"/>
+                                        </feMerge>
+                                    </filter>
+                                </defs>
+
+                                <!-- Triángulo (relación entre dimensiones) -->
+                                <g stroke="rgba(255,255,255,0.14)" stroke-width="1" stroke-dasharray="4 4" fill="none">
+                                    <line x1="250" y1="100" x2="95" y2="235"/>
+                                    <line x1="95" y1="235" x2="405" y2="235"/>
+                                    <line x1="405" y1="235" x2="250" y2="100"/>
+                                </g>
+
+                                <!-- Edges hub→satélite (Funcional, naranja) -->
+                                <g stroke="#ff7a4a" stroke-opacity="0.5" stroke-width="1.2">
+                                    <line x1="250" y1="100" x2="140" y2="50"/>
+                                    <line x1="250" y1="100" x2="250" y2="30"/>
+                                    <line x1="250" y1="100" x2="360" y2="50"/>
+                                </g>
+                                <!-- Edges hub→satélite (Técnico, cian) -->
+                                <g stroke="#22ddff" stroke-opacity="0.5" stroke-width="1.2">
+                                    <line x1="95" y1="235" x2="25" y2="290"/>
+                                    <line x1="95" y1="235" x2="95" y2="305"/>
+                                    <line x1="95" y1="235" x2="165" y2="290"/>
+                                </g>
+                                <!-- Edges hub→satélite (Operativo, púrpura) -->
+                                <g stroke="#a855ff" stroke-opacity="0.5" stroke-width="1.2">
+                                    <line x1="405" y1="235" x2="335" y2="290"/>
+                                    <line x1="405" y1="235" x2="405" y2="305"/>
+                                    <line x1="405" y1="235" x2="475" y2="290"/>
+                                </g>
+
+                                <!-- Halos -->
+                                <circle cx="250" cy="100" r="28" fill="#ff7a4a" opacity="0.18"/>
+                                <circle cx="95" cy="235"  r="28" fill="#22ddff" opacity="0.18"/>
+                                <circle cx="405" cy="235" r="28" fill="#a855ff" opacity="0.18"/>
+
+                                <!-- Hubs -->
+                                <circle cx="250" cy="100" r="16" fill="#ff7a4a" filter="url(#kgGlow)"/>
+                                <circle cx="95" cy="235"  r="16" fill="#22ddff" filter="url(#kgGlow)"/>
+                                <circle cx="405" cy="235" r="16" fill="#a855ff" filter="url(#kgGlow)"/>
+
+                                <!-- Satélites Funcional -->
+                                <g fill="#0a0a0f" stroke="#ff7a4a" stroke-width="1.5">
+                                    <circle cx="140" cy="50" r="4"/>
+                                    <circle cx="250" cy="30" r="4"/>
+                                    <circle cx="360" cy="50" r="4"/>
+                                </g>
+                                <!-- Satélites Técnico -->
+                                <g fill="#0a0a0f" stroke="#22ddff" stroke-width="1.5">
+                                    <circle cx="25" cy="290" r="4"/>
+                                    <circle cx="95" cy="305" r="4"/>
+                                    <circle cx="165" cy="290" r="4"/>
+                                </g>
+                                <!-- Satélites Operativo -->
+                                <g fill="#0a0a0f" stroke="#a855ff" stroke-width="1.5">
+                                    <circle cx="335" cy="290" r="4"/>
+                                    <circle cx="405" cy="305" r="4"/>
+                                    <circle cx="475" cy="290" r="4"/>
+                                </g>
+
+                                <!-- Labels hubs -->
+                                <text class="kg-hub-label" x="250" y="138">Funcional / Dominio</text>
+                                <text class="kg-hub-sub"   x="250" y="153">(el qu&#233;)</text>
+
+                                <text class="kg-hub-label" x="95"  y="200">T&#233;cnico</text>
+                                <text class="kg-hub-sub"   x="95"  y="215">(el con qu&#233;)</text>
+
+                                <text class="kg-hub-label" x="405" y="200">Operativo</text>
+                                <text class="kg-hub-sub"   x="405" y="215">(el c&#243;mo)</text>
+
+                                <!-- Labels satélites Funcional -->
+                                <text class="kg-sat-label" x="140" y="40">reglas</text>
+                                <text class="kg-sat-label" x="250" y="20">regulaci&#243;n</text>
+                                <text class="kg-sat-label" x="360" y="40">procesos</text>
+
+                                <!-- Labels satélites Técnico -->
+                                <text class="kg-sat-label" x="25"  y="304">patrones</text>
+                                <text class="kg-sat-label" x="95"  y="319">NFRs</text>
+                                <text class="kg-sat-label" x="165" y="304">est&#225;ndares</text>
+
+                                <!-- Labels satélites Operativo -->
+                                <text class="kg-sat-label" x="335" y="304">procedimientos</text>
+                                <text class="kg-sat-label" x="405" y="319">workflows</text>
+                                <text class="kg-sat-label" x="475" y="304">runbooks</text>
+                            </svg>
+                        </div>
+                    </div>
+                    <div>
+                        <h3>Jerarqu&iacute;a de 5 niveles</h3>
+                        <div class="diagram" style="padding: 1.5rem;">
+                            <div class="layers-diagram">
+                                <div class="layer layer-knowledge" style="padding: 0.8rem 1.2rem;">
+                                    <div class="layer-title" style="font-size: 0.95rem;">Architecture</div>
+                                    <div class="layer-desc">Principios, patrones, infraestructura</div>
+                                </div>
+                                <div class="layer layer-knowledge" style="padding: 0.8rem 1.2rem; opacity: 0.85;">
+                                    <div class="layer-title" style="font-size: 0.95rem;">Domain</div>
+                                    <div class="layer-desc">Negocio, reglas, regulaci&oacute;n</div>
+                                </div>
+                                <div class="layer layer-knowledge" style="padding: 0.8rem 1.2rem; opacity: 0.7;">
+                                    <div class="layer-title" style="font-size: 0.95rem;">Product</div>
+                                    <div class="layer-desc">Requisitos, journeys end-to-end</div>
+                                </div>
+                                <div class="layer layer-knowledge" style="padding: 0.8rem 1.2rem; opacity: 0.55;">
+                                    <div class="layer-title" style="font-size: 0.95rem;">Feature</div>
+                                    <div class="layer-desc">Funcionalidad, pantallas, comportamientos</div>
+                                </div>
+                                <div class="layer layer-tools" style="padding: 0.8rem 1.2rem;">
+                                    <div class="layer-title" style="font-size: 0.95rem;">Documentation</div>
+                                    <div class="layer-desc">Gu&iacute;as, runbooks, soporte</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 16: Pilar 3 - Evolutive -->
+        <div class="slide" data-section="Nuestra visi&oacute;n">
+            <div class="slide-content">
+                <h4>Pilares &middot; Pilar 3</h4>
+                <h2>Evolutive</h2>
+                <p>Cada proyecto no solo entrega software: entrega conocimiento.</p>
+                <div class="grid-4" style="margin-top: 1.5rem;">
+                    <div class="feature-card">
+                        <h4>Ciclo continuo</h4>
+                        <p>Est&aacute;ndares comunes &rarr; Adaptaci&oacute;n &rarr; Ejecuci&oacute;n &rarr; Consolidaci&oacute;n de aprendizajes</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Co-evoluci&oacute;n</h4>
+                        <p>C&oacute;digo y specs evolucionan en paralelo con trazabilidad absoluta</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Bidireccionalidad</h4>
+                        <p><strong>Green-field</strong> (knowledge &rarr; code) y <strong>Brown-field</strong> (code &rarr; knowledge)</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Sin burocracia</h4>
+                        <p>La mec&aacute;nica de PR/review es el governance natural</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 17: Pilar 4 - Agentic (table → boxes) -->
+        <div class="slide" data-section="Nuestra visi&oacute;n">
+            <div class="slide-content">
+                <h4>Pilares &middot; Pilar 4</h4>
+                <h2>Agentic</h2>
+                <p>Sin conocimiento estructurado, los agentes reproducen el problema de fondo. La combinaci&oacute;n concreta depende de cada proyecto.</p>
+                <div class="card-grid" style="grid-template-columns: repeat(5, 1fr); margin-top: 1.5rem;">
+                    <div class="info-box">
+                        <div class="info-meta">Estrategia</div>
+                        <h5>Exploraci&oacute;n y advisory</h5>
+                        <p>Eval&uacute;an tecnolog&iacute;as emergentes, miden madurez, proponen evoluci&oacute;n</p>
+                    </div>
+                    <div class="info-box">
+                        <div class="info-meta">Dise&ntilde;o</div>
+                        <h5>Conocimiento</h5>
+                        <p>Difunden cambios, resumen decisiones, facilitan alineamiento</p>
+                    </div>
+                    <div class="info-box">
+                        <div class="info-meta">Desarrollo</div>
+                        <h5>Generaci&oacute;n y gu&iacute;a</h5>
+                        <p>Generan c&oacute;digo y plantillas desde specs. Recomiendan patrones</p>
+                    </div>
+                    <div class="info-box">
+                        <div class="info-meta">Validaci&oacute;n</div>
+                        <h5>Validaci&oacute;n</h5>
+                        <p>Validan artefactos frente a specs vigentes en CI/CD</p>
+                    </div>
+                    <div class="info-box">
+                        <div class="info-meta">Governance</div>
+                        <h5>Monitorizaci&oacute;n</h5>
+                        <p>Monitorizan cumplimiento, generan alertas y evidencia</p>
+                    </div>
+                </div>
+                <p class="quote">La automatizaci&oacute;n del plano operativo libera al talento senior para dedicarse a lo que realmente aporta valor.</p>
+            </div>
+        </div>
+
+        <!-- Slide 18: Visión global - Arquitectura (polished) -->
+        <div class="slide" data-section="Nuestra visi&oacute;n">
+            <div class="slide-content">
+                <h4>Arquitectura</h4>
+                <h2>Arquitectura Knowledge-Driven</h2>
+                <div class="diagram" style="margin-top: 1rem; padding: 2.5rem;">
+                    <div class="axis-arrow"><span>&uarr; COMMODITY</span><span>DIFERENCIACI&Oacute;N &darr;</span></div>
+                    <div class="layers-diagram">
+                        <div class="layer layer-tools">
+                            <div class="layer-label">Capa 4 &mdash; Runtime &middot; Tools &middot; Connectivity</div>
+                            <div class="layer-title">Execution &amp; Integration</div>
+                            <div class="layer-desc">MCP Gateway &middot; LLM Gateway &middot; Tool Registry &middot; Runtime</div>
+                            <span class="layer-commodity">Intercambiable</span>
+                        </div>
+                        <div class="layer layer-tools">
+                            <div class="layer-label">Capa 3 &mdash; Coordination &middot; Patterns &middot; Control</div>
+                            <div class="layer-title">Agentic Orchestration</div>
+                            <div class="layer-desc">Agent Registry &middot; Router &middot; Supervision &middot; Pattern Library</div>
+                        </div>
+                        <div class="layer layer-knowledge" style="opacity: 0.8;">
+                            <div class="layer-label">Capa 2 &mdash; Context Engineering</div>
+                            <div class="layer-title">Context Fabric</div>
+                            <div class="layer-desc">Retrieval &middot; KB Engine &middot; Filter &middot; Memory</div>
+                        </div>
+                        <div class="layer layer-knowledge">
+                            <div class="layer-label">Capa 1 &mdash; Spec-Driven &middot; Source of Truth</div>
+                            <div class="layer-title">Knowledge Base</div>
+                            <div class="layer-desc">Spec Registry &middot; ADR &middot; Ontology &middot; Evidence</div>
+                            <span class="layer-value">Tu diferencial</span>
+                        </div>
+                    </div>
+                    <div class="transversal-bars">
+                        <div class="transversal-bar">Quality &middot; Evals &middot; Observability</div>
+                        <div class="transversal-bar">Governance &middot; Risk &middot; Security</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 19: Workflow -->
+        <div class="slide" data-section="Nuestra visi&oacute;n">
+            <div class="slide-content">
+                <h4>M&eacute;todo de trabajo</h4>
+                <h2>Workflow Knowledge-Driven</h2>
+                <p style="color: var(--text-secondary); font-size: 0.95rem;">Siete fases disciplinadas con dos gates. Cada fase consume y produce conocimiento; el KB se enriquece en cada iteraci&oacute;n.</p>
+                <div class="workflow-lanes">
+                    <div class="wl-head">Fase</div>
+                    <div class="wl-head">Humano</div>
+                    <div class="wl-head">Agentes IA</div>
+                    <div class="wl-head">Knowledge</div>
+
+                    <div class="wl-cell wl-phase"><span class="wl-num">01</span><span class="wl-name">Brainstorm &amp; intent</span></div>
+                    <div class="wl-cell wl-human">Define necesidad y valida enfoque</div>
+                    <div class="wl-cell wl-ia"><span class="wl-agent-chip">code-explorer</span><span class="wl-agent-chip">researcher</span></div>
+                    <div class="wl-cell wl-know"><span class="wl-in">specs dominio &middot; arquitectura &middot; rules &middot; ADRs</span><span class="wl-out">intent note &middot; preguntas abiertas</span></div>
+
+                    <div class="wl-cell wl-phase"><span class="wl-num">02</span><span class="wl-name">Spec &amp; plan</span></div>
+                    <div class="wl-cell wl-human">Aprueba spec y plan</div>
+                    <div class="wl-cell wl-ia"><span class="wl-agent-chip">spec-architect</span></div>
+                    <div class="wl-cell wl-know"><span class="wl-in">template spec &middot; ontology</span><span class="wl-out">feature spec &middot; plan TDD</span></div>
+
+                    <div class="workflow-gate">Gate de clarificaci&oacute;n &mdash; sin claridad no se avanza</div>
+
+                    <div class="wl-cell wl-phase"><span class="wl-num">03</span><span class="wl-name">Explore &amp; architect</span></div>
+                    <div class="wl-cell wl-human">Decide alternativa</div>
+                    <div class="wl-cell wl-ia"><span class="wl-agent-chip">code-explorer</span><span class="wl-agent-chip">code-architect</span><span class="wl-parallel">&#8741; paralelo</span></div>
+                    <div class="wl-cell wl-know"><span class="wl-in">codebase &middot; patrones &middot; ADRs previos</span><span class="wl-out">dise&ntilde;o t&eacute;cnico &middot; ADRs nuevos</span></div>
+
+                    <div class="wl-cell wl-phase"><span class="wl-num">04</span><span class="wl-name">TDD implementation</span></div>
+                    <div class="wl-cell wl-human">Revisa entregables</div>
+                    <div class="wl-cell wl-ia"><span class="wl-agent-chip">implementer</span><span class="wl-agent-chip">test-runner</span></div>
+                    <div class="wl-cell wl-know"><span class="wl-in">spec &middot; plan &middot; test framework</span><span class="wl-out">tests rojos&rarr;verdes &middot; c&oacute;digo</span></div>
+
+                    <div class="wl-cell wl-phase"><span class="wl-num">05</span><span class="wl-name">Verify</span></div>
+                    <div class="wl-cell wl-human">Valida evidencia</div>
+                    <div class="wl-cell wl-ia"><span class="wl-agent-chip">verifier</span></div>
+                    <div class="wl-cell wl-know"><span class="wl-in">targets &middot; KPIs &middot; evals</span><span class="wl-out">evidencia reproducible</span></div>
+
+                    <div class="workflow-gate">Gate de evidencia &mdash; sin verificaci&oacute;n no se declara done</div>
+
+                    <div class="wl-cell wl-phase"><span class="wl-num">06</span><span class="wl-name">Review</span></div>
+                    <div class="wl-cell wl-human">Decide merge</div>
+                    <div class="wl-cell wl-ia"><span class="wl-agent-chip">code-reviewer</span></div>
+                    <div class="wl-cell wl-know"><span class="wl-in">spec &middot; ADRs &middot; est&aacute;ndares</span><span class="wl-out">feedback &middot; correcciones</span></div>
+
+                    <div class="wl-cell wl-phase"><span class="wl-num">07</span><span class="wl-name">Merge &amp; knowledge retro</span></div>
+                    <div class="wl-cell wl-human">Captura aprendizajes</div>
+                    <div class="wl-cell wl-ia"><span class="wl-agent-chip">librarian</span></div>
+                    <div class="wl-cell wl-know"><span class="wl-in">specs &middot; c&oacute;digo &middot; decisiones</span><span class="wl-out">specs++ &middot; ADRs++ &middot; patrones &middot; playbooks</span></div>
+                </div>
+                <div class="workflow-loop"><span class="wl-infinity">&#8734;</span> <strong>El KB crece en cada iteraci&oacute;n</strong> &mdash; lo aprendido en 07 alimenta el 01 del siguiente ciclo</div>
+            </div>
+        </div>
+
+        <!-- Slide 20: Madurez por scope + líneas transversales -->
+        <div class="slide" data-section="Nuestra visi&oacute;n">
+            <div class="slide-content">
+                <h4>Evoluci&oacute;n progresiva</h4>
+                <h2>Incremento de la madurez bottom-up</h2>
+                <p style="color: var(--text-secondary); font-size: 0.95rem;">Podemos empezar hoy. La madurez crece al ampliar el scope &mdash; y las l&iacute;neas transversales (automatizaci&oacute;n, governance, agentes) se intensifican en paralelo.</p>
+                <div class="maturity-wrap">
+                    <div class="maturity-steps">
+                        <div class="maturity-step">
+                            <span class="maturity-start-badge">Empieza aqu&iacute;</span>
+                            <span class="m-num">01</span>
+                            <span class="m-title">Proyecto</span>
+                            <span class="m-scope">Un proyecto, un equipo. Specs b&aacute;sicas del dominio propio, ADRs clave, rules.</span>
+                            <span class="m-when">&rarr; hoy mismo</span>
+                        </div>
+                        <div class="maturity-step">
+                            <span class="m-num">02</span>
+                            <span class="m-title">Dominio</span>
+                            <span class="m-scope">Varios proyectos de un &aacute;rea (core banking, claims, etc.) comparten lenguaje y patrones.</span>
+                            <span class="m-when">&rarr; cuando 2-3 proyectos ya tienen specs</span>
+                        </div>
+                        <div class="maturity-step">
+                            <span class="m-num">03</span>
+                            <span class="m-title">Enterprise</span>
+                            <span class="m-scope">Toda la organizaci&oacute;n. Reutilizaci&oacute;n cross-dominio, governance corporativo.</span>
+                            <span class="m-when">&rarr; cuando varios dominios maduran</span>
+                        </div>
+                    </div>
+
+                    <div class="maturity-lanes">
+                        <div class="maturity-lane-label">Specs &amp; KB</div>
+                        <div class="maturity-lane-cell" data-fill="1"><span>Specs del proyecto &middot; ADRs &middot; rules</span></div>
+                        <div class="maturity-lane-cell" data-fill="2"><span>Ontology compartida &middot; taxonom&iacute;a de dominio</span></div>
+                        <div class="maturity-lane-cell" data-fill="3"><span>KB corporativo reutilizable cross-dominio</span></div>
+
+                        <div class="maturity-lane-label">Automatizaci&oacute;n</div>
+                        <div class="maturity-lane-cell" data-fill="1"><span>Validaci&oacute;n manual &middot; revisi&oacute;n por pares</span></div>
+                        <div class="maturity-lane-cell" data-fill="2"><span>CI checks &middot; lint de specs &middot; gates de calidad</span></div>
+                        <div class="maturity-lane-cell" data-fill="3"><span>Pipeline agentic end-to-end</span></div>
+
+                        <div class="maturity-lane-label">Governance</div>
+                        <div class="maturity-lane-cell" data-fill="1"><span>El equipo decide y documenta</span></div>
+                        <div class="maturity-lane-cell" data-fill="2"><span>Comit&eacute; de arquitectura por dominio</span></div>
+                        <div class="maturity-lane-cell" data-fill="3"><span>Governance corporativo + compliance</span></div>
+
+                        <div class="maturity-lane-label">Agentes IA</div>
+                        <div class="maturity-lane-cell" data-fill="1"><span>Copilots asistidos sobre specs locales</span></div>
+                        <div class="maturity-lane-cell" data-fill="2"><span>Agentes spec-driven por dominio</span></div>
+                        <div class="maturity-lane-cell" data-fill="3"><span>Orquestaci&oacute;n multi-agente sobre KB</span></div>
+                    </div>
+
+                    <div class="maturity-loop-arrow">Ciclo continuo &mdash; el conocimiento es evolutivo por naturaleza</div>
+                </div>
+                <p class="quote" style="margin-top: 2rem; max-width: none;">La arquitectura de conocimiento est&aacute; viva y mejora de forma continua.</p>
+            </div>
+        </div>
+
+        <!-- Slide 22: Section divider - La importancia de medir -->
+        <div class="slide" data-section="Medir">
+            <div class="slide-content section-divider">
+                <div class="section-number">03</div>
+                <h1>La importancia de medir</h1>
+            </div>
+        </div>
+
+        <!-- Slide 23: El problema de medir -->
+        <div class="slide" data-section="Medir">
+            <div class="slide-content">
+                <h4>Medir</h4>
+                <h2>El problema de medir el impacto de la IA</h2>
+                <div class="grid-4" style="grid-template-columns: repeat(3, 1fr); margin-top: 1.5rem;">
+                    <div class="problem-box problem-box--top">
+                        <div class="box-title">Punto de partida</div>
+                        <div class="box-problem">Si la organizaci&oacute;n no med&iacute;a el rendimiento del desarrollo, falta el baseline contra el que comparar el impacto de la IA.</div>
+                    </div>
+                    <div class="problem-box problem-box--top">
+                        <div class="box-title">M&uacute;ltiples variables</div>
+                        <div class="box-problem">Herramientas, procesos y personas cambian a la vez. Atribuir la mejora &uacute;nicamente a la IA es complejo sin un m&eacute;todo claro.</div>
+                    </div>
+                    <div class="problem-box problem-box--top">
+                        <div class="box-title">Efecto Hawthorne</div>
+                        <div class="box-problem">Los equipos tienden a mejorar simplemente porque saben que est&aacute;n siendo observados &mdash; conviene aislarlo.</div>
+                    </div>
+                </div>
+                <div class="problem-arrows" style="grid-template-columns: repeat(3, 1fr);" aria-hidden="true">
+                    <span>&darr;</span><span>&darr;</span><span>&darr;</span>
+                </div>
+                <div class="grid-4" style="grid-template-columns: repeat(3, 1fr);">
+                    <div class="problem-box problem-box--bottom">
+                        <div class="box-solution">&iquest;C&oacute;mo medimos hoy el rendimiento del desarrollo, antes de introducir la IA?</div>
+                    </div>
+                    <div class="problem-box problem-box--bottom">
+                        <div class="box-solution">&iquest;C&oacute;mo aislamos el efecto de la IA del resto de cambios en marcha?</div>
+                    </div>
+                    <div class="problem-box problem-box--bottom">
+                        <div class="box-solution">&iquest;C&oacute;mo distinguimos la mejora real del simple efecto observador?</div>
+                    </div>
+                </div>
+                <p class="quote" style="margin-top: 1.5rem; max-width: none;">Antes de preguntarse cu&aacute;nto mejora la IA, necesitamos saber de d&oacute;nde partimos.</p>
+            </div>
+        </div>
+
+        <!-- Slide 24: Framework DORA + SPACE + AI (table → boxes) -->
+        <div class="slide" data-section="Medir">
+            <div class="slide-content">
+                <h4>Medir</h4>
+                <h2>Framework DORA + SPACE + AI</h2>
+                <p>Cuatro dimensiones para medir la contribuci&oacute;n de la IA:</p>
+                <div class="grid-4" style="margin-top: 1.5rem;">
+                    <div class="info-box">
+                        <div class="info-meta">DORA</div>
+                        <h5>Delivery</h5>
+                        <p>Deploy Frequency, Lead Time, MTTR, Change Fail Rate</p>
+                    </div>
+                    <div class="info-box">
+                        <div class="info-meta">T&eacute;cnica</div>
+                        <h5>Quality</h5>
+                        <p>Defect Density, Coverage, Tech Debt, Security Score</p>
+                    </div>
+                    <div class="info-box">
+                        <div class="info-meta">SPACE</div>
+                        <h5>Experience</h5>
+                        <p>Developer NPS, Flow Time, Collaboration, Onboarding</p>
+                    </div>
+                    <div class="info-box">
+                        <div class="info-meta">Propio</div>
+                        <h5>AI-Specific</h5>
+                        <p>AI Assist Rate, Accept Rate, Attribution %, ROI</p>
+                    </div>
+                </div>
+                <div class="problem-arrows" aria-hidden="true">
+                    <span>&darr;</span><span>&darr;</span><span>&darr;</span><span>&darr;</span>
+                </div>
+                <div class="grid-4">
+                    <div class="problem-box problem-box--bottom">
+                        <div class="box-solution">&iquest;Entregamos m&aacute;s r&aacute;pido?</div>
+                    </div>
+                    <div class="problem-box problem-box--bottom">
+                        <div class="box-solution">&iquest;El c&oacute;digo es mejor?</div>
+                    </div>
+                    <div class="problem-box problem-box--bottom">
+                        <div class="box-solution">&iquest;El equipo est&aacute; mejor?</div>
+                    </div>
+                    <div class="problem-box problem-box--bottom">
+                        <div class="box-solution">&iquest;Cu&aacute;nto mejoramos con la IA?</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 25: KPIs end-to-end (SDLC + governance fusionados) -->
+        <div class="slide" data-section="Medir">
+            <div class="slide-content">
+                <h4>Medir</h4>
+                <h2>KPIs: del SDLC al governance</h2>
+                <p style="color: var(--text-secondary); font-size: 0.95rem;">Dos planos complementarios &mdash; el d&iacute;a a d&iacute;a del SDLC y la madurez del knowledge &amp; arquitectura.</p>
+
+                <div class="kpis-section-divider">Operativa SDLC</div>
+                <div class="sdlc-grid">
+                    <div class="sdlc-card" data-cat="delivery">
+                        <span class="cat-name">Delivery</span>
+                        <div class="sdlc-metric"><span class="m-name">Cycle Time</span><span class="m-delta">&minus;40%</span></div>
+                        <div class="sdlc-metric"><span class="m-name">Throughput</span><span class="m-delta">+30%</span></div>
+                        <div class="sdlc-metric"><span class="m-name">Lead Time</span><span class="m-delta">&minus;50%</span></div>
+                    </div>
+                    <div class="sdlc-card" data-cat="quality">
+                        <span class="cat-name">Quality</span>
+                        <div class="sdlc-metric"><span class="m-name">Defect Density</span><span class="m-delta">&minus;40%</span></div>
+                        <div class="sdlc-metric"><span class="m-name">Review Time</span><span class="m-delta">&minus;60%</span></div>
+                        <div class="sdlc-metric"><span class="m-name">Test Coverage</span><span class="m-delta">+20%</span></div>
+                    </div>
+                    <div class="sdlc-card" data-cat="value">
+                        <span class="cat-name">Value</span>
+                        <div class="sdlc-metric"><span class="m-name">Time to Market</span><span class="m-delta">&minus;50%</span></div>
+                        <div class="sdlc-metric is-target"><span class="m-name">Dev Satisfaction</span><span class="m-delta">&gt;50</span></div>
+                    </div>
+                    <div class="sdlc-card" data-cat="ai">
+                        <span class="cat-name">AI</span>
+                        <div class="sdlc-metric is-target"><span class="m-name">AI Assist Rate</span><span class="m-delta">40-60%</span></div>
+                        <div class="sdlc-metric is-target"><span class="m-name">Acceptance Rate</span><span class="m-delta">&gt;70%</span></div>
+                    </div>
+                </div>
+
+                <div class="kpis-section-divider">Madurez Knowledge &amp; Architecture</div>
+                <div class="gov-grid">
+                    <div class="gov-card">
+                        <span class="gov-label">Trazabilidad</span>
+                        <span class="gov-name">% decisiones con ADR</span>
+                        <div class="gov-progress">
+                            <span class="gov-pill-baseline">&lt;20%</span>
+                            <span class="gov-arrow">&darr;</span>
+                            <span class="gov-pill-target">&gt;90%</span>
+                        </div>
+                    </div>
+                    <div class="gov-card">
+                        <span class="gov-label">Reutilizaci&oacute;n</span>
+                        <span class="gov-name">% proyectos que heredan spec base</span>
+                        <div class="gov-progress">
+                            <span class="gov-pill-baseline">&lt;10%</span>
+                            <span class="gov-arrow">&darr;</span>
+                            <span class="gov-pill-target">&gt;70%</span>
+                        </div>
+                    </div>
+                    <div class="gov-card">
+                        <span class="gov-label">Calidad en origen</span>
+                        <span class="gov-name">% incumplimientos detectados pre-prod</span>
+                        <div class="gov-progress">
+                            <span class="gov-pill-baseline">&lt;30%</span>
+                            <span class="gov-arrow">&darr;</span>
+                            <span class="gov-pill-target">&gt;80%</span>
+                        </div>
+                    </div>
+                    <div class="gov-card">
+                        <span class="gov-label">Coherencia</span>
+                        <span class="gov-name">% est&aacute;ndares documentados</span>
+                        <div class="gov-progress">
+                            <span class="gov-pill-baseline">&lt;40%</span>
+                            <span class="gov-arrow">&darr;</span>
+                            <span class="gov-pill-target">&gt;95%</span>
+                        </div>
+                    </div>
+                    <div class="gov-card">
+                        <span class="gov-label">Velocidad arranque</span>
+                        <span class="gov-name">Tiempo setup arquitect&oacute;nico</span>
+                        <div class="gov-progress">
+                            <span class="gov-pill-baseline">Semanas</span>
+                            <span class="gov-arrow">&darr;</span>
+                            <span class="gov-pill-target">D&iacute;as</span>
+                        </div>
+                    </div>
+                    <div class="gov-card">
+                        <span class="gov-label">Autonom&iacute;a</span>
+                        <span class="gov-name">% consultas resueltas por agentes</span>
+                        <div class="gov-progress">
+                            <span class="gov-pill-baseline">0%</span>
+                            <span class="gov-arrow">&darr;</span>
+                            <span class="gov-pill-target">&gt;50%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <p class="quote" style="margin-top: 1.5rem; max-width: none;">Lo operativo te dice si la IA acelera; la madurez te dice si lo aprendido se queda.</p>
+            </div>
+        </div>
+
+        <!-- Slide 27: Apache DevLake -->
+        <div class="slide" data-section="Medir">
+            <div class="slide-content">
+                <h4>Medir</h4>
+                <h2>Arquitectura de medici&oacute;n: Apache DevLake</h2>
+                <div class="two-col" style="margin-top: 1rem;">
+                    <div>
+                        <div class="dashboard-mock">
+                            <div class="dash-header">
+                                <div class="dash-title">DevLake &middot; Engineering KPIs</div>
+                                <div class="dash-meta"><span class="dash-dot"></span>Live &middot; &uacute;ltimos 30 d&iacute;as</div>
+                            </div>
+                            <div class="dash-tiles">
+                                <div class="dash-tile">
+                                    <div class="t-label">Cycle Time</div>
+                                    <div class="t-value">3.2<span class="t-unit">d</span></div>
+                                    <div class="t-delta is-down">&darr; 42%</div>
+                                    <div class="sparkline">
+                                        <span style="height: 70%"></span><span style="height: 60%"></span><span style="height: 75%"></span><span style="height: 50%"></span><span style="height: 45%"></span><span style="height: 38%"></span><span style="height: 30%"></span><span style="height: 22%"></span>
+                                    </div>
+                                </div>
+                                <div class="dash-tile">
+                                    <div class="t-label">Deploy Freq.</div>
+                                    <div class="t-value">12.4<span class="t-unit">/d</span></div>
+                                    <div class="t-delta is-up">&uarr; 31%</div>
+                                    <div class="sparkline">
+                                        <span style="height: 30%"></span><span style="height: 40%"></span><span style="height: 35%"></span><span style="height: 55%"></span><span style="height: 60%"></span><span style="height: 70%"></span><span style="height: 78%"></span><span style="height: 90%"></span>
+                                    </div>
+                                </div>
+                                <div class="dash-tile">
+                                    <div class="t-label">Defect Density</div>
+                                    <div class="t-value">0.18</div>
+                                    <div class="t-delta is-down">&darr; 38%</div>
+                                    <div class="sparkline">
+                                        <span style="height: 65%"></span><span style="height: 55%"></span><span style="height: 60%"></span><span style="height: 50%"></span><span style="height: 42%"></span><span style="height: 38%"></span><span style="height: 32%"></span><span style="height: 28%"></span>
+                                    </div>
+                                </div>
+                                <div class="dash-tile">
+                                    <div class="t-label">Acceptance</div>
+                                    <div class="t-value">73<span class="t-unit">%</span></div>
+                                    <div class="t-delta is-up">&uarr; 9pp</div>
+                                    <div class="sparkline">
+                                        <span style="height: 50%"></span><span style="height: 55%"></span><span style="height: 58%"></span><span style="height: 62%"></span><span style="height: 68%"></span><span style="height: 70%"></span><span style="height: 72%"></span><span style="height: 73%"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="dash-row">
+                                <div class="dash-panel">
+                                    <div class="panel-title">Deploy Frequency / equipo</div>
+                                    <div class="bar-row"><span class="bar-label">Core</span><div class="bar-track"><div class="bar-fill" style="width: 88%"></div></div><span class="bar-value">28/d</span></div>
+                                    <div class="bar-row"><span class="bar-label">Payments</span><div class="bar-track"><div class="bar-fill" style="width: 72%"></div></div><span class="bar-value">22/d</span></div>
+                                    <div class="bar-row"><span class="bar-label">Claims</span><div class="bar-track"><div class="bar-fill" style="width: 54%"></div></div><span class="bar-value">17/d</span></div>
+                                    <div class="bar-row"><span class="bar-label">Mobile</span><div class="bar-track"><div class="bar-fill" style="width: 38%"></div></div><span class="bar-value">12/d</span></div>
+                                </div>
+                                <div class="dash-panel">
+                                    <div class="panel-title">AI Assist Rate</div>
+                                    <div class="donut-wrap">
+                                        <div class="donut" style="--val: 52;">
+                                            <div class="donut-value">52%</div>
+                                        </div>
+                                        <div class="donut-legend">
+                                            <div class="donut-legend-item" style="--swatch: var(--accent-cyan);">Asistido</div>
+                                            <div class="donut-legend-item" style="--swatch: rgba(255,255,255,0.2);">Manual</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="diagram" style="padding: 1.5rem; margin: 0;">
+                            <div class="layers-diagram" style="gap: 0.5rem;">
+                                <div class="layer layer-tools" style="padding: 0.8rem 1.2rem; text-align: center;">
+                                    <div class="layer-title" style="font-size: 0.9rem;">Fuentes</div>
+                                    <div class="layer-desc">GitHub &middot; Jira &middot; Jenkins &middot; SonarQube</div>
+                                </div>
+                                <div style="text-align: center; color: var(--accent-orange); font-size: 1.2rem;">&darr;</div>
+                                <div class="layer layer-knowledge" style="padding: 0.8rem 1.2rem; text-align: center;">
+                                    <div class="layer-title" style="font-size: 0.9rem;">DevLake</div>
+                                    <div class="layer-desc">Agregaci&oacute;n &middot; Transformaci&oacute;n &middot; Domain models</div>
+                                </div>
+                                <div style="text-align: center; color: var(--accent-orange); font-size: 1.2rem;">&darr;</div>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                                    <div class="layer layer-tools" style="padding: 0.8rem; text-align: center;">
+                                        <div class="layer-title" style="font-size: 0.85rem;">Grafana</div>
+                                        <div class="layer-desc">KPI Portal</div>
+                                    </div>
+                                    <div class="layer layer-tools" style="padding: 0.8rem; text-align: center;">
+                                        <div class="layer-title" style="font-size: 0.85rem;">AI/ML</div>
+                                        <div class="layer-desc">Patrones &middot; Anomal&iacute;as</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <p style="margin-top: 1rem; font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; text-align: center;">
+                    DORA nativo &middot; Open Source (Apache 2.0, sin vendor lock-in) &middot; Multi-source (GitHub, GitLab, Jira, Jenkins, SonarQube) &middot; Self-hosted (Docker/K8s) &middot; Sistema de plugins extensible
+                </p>
+            </div>
+        </div>
+
+        <!-- Slide 29: Section divider - El cómo -->
+        <div class="slide" data-section="El c&oacute;mo">
+            <div class="slide-content section-divider">
+                <div class="section-number">04</div>
+                <h1>El c&oacute;mo</h1>
+            </div>
+        </div>
+
+        <!-- Slide 30: Hoja de ruta tipo -->
+        <div class="slide" data-section="El c&oacute;mo">
+            <div class="slide-content">
+                <h4>El c&oacute;mo</h4>
+                <h2>Hoja de ruta bottom-up</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">No hay big-bang. Escalado continuo desde proyecto hasta toda la organizaci&oacute;n.</p>
+                <div class="card-grid" style="grid-template-columns: repeat(3, 1fr); align-items: stretch;">
+                    <div class="card" style="position: relative; overflow: hidden; display: flex; flex-direction: column;">
+                        <span class="maturity-start-badge">Empieza aqu&iacute;</span>
+                        <div style="position: absolute; top: 0; left: 0; right: 0; height: 4px; background: var(--gradient-hot);"></div>
+                        <h4 style="color: var(--accent-orange); font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; letter-spacing: 0.1em;">FASE 1 &middot; PROYECTO &middot; MESES 1-3</h4>
+                        <h3>Proyecto piloto</h3>
+                        <p style="color: var(--text-muted); font-size: 0.85rem; font-style: italic; margin-bottom: 0.8rem;">Demostrar el modelo en un per&iacute;metro acotado.</p>
+                        <ul class="feature-list" style="font-size: 0.85rem;">
+                            <li>Selecci&oacute;n del proyecto piloto</li>
+                            <li>Specs b&aacute;sicas del dominio propio + ADRs clave</li>
+                            <li>Formaci&oacute;n del equipo en el workflow knowledge-driven</li>
+                            <li>Copilots asistidos sobre las specs locales</li>
+                        </ul>
+                        <div style="margin-top: auto; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.06);">
+                            <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Resultado</div>
+                            <p style="font-size: 0.85rem; color: var(--text-primary);">Proyecto operando con specs vivas y equipo capacitado.</p>
+                        </div>
+                    </div>
+                    <div class="card" style="position: relative; overflow: hidden; display: flex; flex-direction: column;">
+                        <div style="position: absolute; top: 0; left: 0; right: 0; height: 4px; background: var(--accent-pink);"></div>
+                        <h4 style="color: var(--accent-pink); font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; letter-spacing: 0.1em;">FASE 2 &middot; DOMINIO &middot; MESES 4-9</h4>
+                        <h3>Extensi&oacute;n al dominio</h3>
+                        <p style="color: var(--text-muted); font-size: 0.85rem; font-style: italic; margin-bottom: 0.8rem;">Compartir lenguaje y patrones entre los proyectos del &aacute;rea.</p>
+                        <ul class="feature-list" style="font-size: 0.85rem;">
+                            <li>Extensi&oacute;n a 2-3 proyectos m&aacute;s del dominio</li>
+                            <li>Ontology compartida + taxonom&iacute;a de dominio</li>
+                            <li>CI checks + lint de specs + comit&eacute; de arquitectura</li>
+                            <li>Agentes spec-driven especializados</li>
+                        </ul>
+                        <div style="margin-top: auto; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.06);">
+                            <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Resultado</div>
+                            <p style="font-size: 0.85rem; color: var(--text-primary);">Dominio con governance, reutilizaci&oacute;n y m&eacute;tricas en marcha.</p>
+                        </div>
+                    </div>
+                    <div class="card" style="position: relative; overflow: hidden; display: flex; flex-direction: column;">
+                        <div style="position: absolute; top: 0; left: 0; right: 0; height: 4px; background: var(--accent-cyan);"></div>
+                        <h4 style="color: var(--accent-cyan); font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; letter-spacing: 0.1em;">FASE 3 &middot; ENTERPRISE &middot; MESES 10-18</h4>
+                        <h3>Escalado enterprise</h3>
+                        <p style="color: var(--text-muted); font-size: 0.85rem; font-style: italic; margin-bottom: 0.8rem;">Que el conocimiento trabaje a escala corporativa.</p>
+                        <ul class="feature-list" style="font-size: 0.85rem;">
+                            <li>Reutilizaci&oacute;n cross-dominio &middot; KB corporativo</li>
+                            <li>Governance corporativo + compliance</li>
+                            <li>Pipeline agentic end-to-end</li>
+                            <li>Orquestaci&oacute;n multi-agente sobre la KB</li>
+                        </ul>
+                        <div style="margin-top: auto; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.06);">
+                            <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Resultado</div>
+                            <p style="font-size: 0.85rem; color: var(--text-primary);">Operaci&oacute;n a escala sin crecimiento lineal de headcount.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 31: Nuestros aceleradores -->
+        <div class="slide" data-section="El c&oacute;mo">
+            <div class="slide-content">
+                <h4>El c&oacute;mo</h4>
+                <h2>Nuestros aceleradores</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">No se parte de cero. Dos activos propios, construidos con la misma filosof&iacute;a Knowledge-Driven, aceleran cada fase.</p>
+                <div class="two-col" style="margin-top: 1rem;">
+                    <div class="card" style="position: relative; overflow: hidden;">
+                        <div style="position: absolute; top: 0; left: 0; right: 0; height: 4px; background: var(--gradient-hot);"></div>
+                        <h3 style="color: var(--accent-orange);">NGINe</h3>
+                        <p style="margin-bottom: 1rem;">Framework para construir software coherente con agentes de IA.</p>
+                        <ul class="feature-list">
+                            <li><strong>Knowledge-Driven</strong>: el conocimiento gu&iacute;a el desarrollo</li>
+                            <li><strong>Ag&eacute;ntico</strong>: colaboraci&oacute;n humano-IA nativa</li>
+                            <li><strong>8 capas</strong> de conocimiento</li>
+                            <li><strong>6 servicios</strong> integrados</li>
+                        </ul>
+                    </div>
+                    <div class="card" style="position: relative; overflow: hidden;">
+                        <div style="position: absolute; top: 0; left: 0; right: 0; height: 4px; background: var(--gradient-cool);"></div>
+                        <h3 style="color: var(--accent-cyan);">Strata</h3>
+                        <p style="margin-bottom: 1rem;">Plataforma que transforma c&oacute;digo legacy en conocimiento estructurado.</p>
+                        <ul class="feature-list">
+                            <li><strong>14 dominios</strong> de extracci&oacute;n</li>
+                            <li>An&aacute;lisis <strong>dual</strong>: determin&iacute;stico + probabil&iacute;stico</li>
+                            <li><strong>Laia</strong>: asistente IA context-aware</li>
+                            <li>Casos reales en grandes clientes</li>
+                        </ul>
+                    </div>
+                </div>
+                <p class="quote" style="margin-top: 1.5rem;">Aceleradores que reducen el time-to-value de cada fase.</p>
+            </div>
+        </div>
+
+        <!-- Slide 32: Cierre -->
+        <div class="slide title-slide" data-section="Cierre">
+            <div class="slide-content">
+                <h1>El conocimiento estructurado<br>como base para el escalado de la IA.</h1>
+            </div>
+        </div>
+
+        <!-- Navegación -->
+        <nav class="nav">
+            <button class="nav-btn" id="prevBtn">&#9666;</button>
+            <span class="slide-counter" id="slideCounter">1 / 35</span>
+            <button class="nav-btn" id="nextBtn">&#9656;</button>
+        </nav>
+        <div class="keyboard-hint">
+            <kbd>&larr;</kbd> <kbd>&rarr;</kbd> o <kbd>Space</kbd> para navegar
+        </div>
+        <button class="edit-toggle" id="editToggle" title="Modo edici&oacute;n">&#9998;</button>
+    </div>
+
+    <script>
+const slides = document.querySelectorAll('.slide');
+const progressBar = document.getElementById('progressBar');
+const slideCounter = document.getElementById('slideCounter');
+const topNav = document.getElementById('topNav');
+const navSections = document.getElementById('navSections');
+let current = 0;
+
+// Build top nav from slide data-section attributes
+(function buildNav() {
+    const sectionOrder = [];
+    const sectionSlides = {};
+    const skipSections = ['Intro', 'Cierre'];
+    slides.forEach(function(slide, idx) {
+        var sec = slide.dataset.section;
+        if (!sec || skipSections.indexOf(sec) !== -1) return;
+        if (!sectionSlides[sec]) { sectionSlides[sec] = []; sectionOrder.push(sec); }
+        var isDivider = slide.querySelector('.section-divider');
+        var h2 = slide.querySelector('h2');
+        var title = h2 ? h2.textContent.trim() : sec;
+        sectionSlides[sec].push({ idx: idx, title: title, divider: !!isDivider });
+    });
+    sectionOrder.forEach(function(sec) {
+        var div = document.createElement('div');
+        div.className = 'nav-section';
+        div.dataset.section = sec;
+        div.textContent = sec;
+        // Click on section goes to its first slide
+        div.addEventListener('click', function(e) {
+            if (e.target.classList.contains('nav-sub-item')) return;
+            goToSlide(sectionSlides[sec][0].idx);
+        });
+        // Build submenu
+        var submenu = document.createElement('div');
+        submenu.className = 'nav-submenu';
+        var subCount = 0;
+        sectionSlides[sec].forEach(function(s) {
+            if (s.divider) return;
+            subCount++;
+            var item = document.createElement('div');
+            item.className = 'nav-sub-item';
+            item.dataset.slideIdx = s.idx;
+            item.innerHTML = '<span class="sub-num">' + subCount + '</span>' + s.title;
+            item.addEventListener('click', function(e) {
+                e.stopPropagation();
+                goToSlide(s.idx);
+            });
+            submenu.appendChild(item);
+        });
+        div.appendChild(submenu);
+        navSections.appendChild(div);
+    });
+})();
+
+function updateNav() {
+    var sec = slides[current].dataset.section || '';
+    var isSpecial = sec === 'Intro' || sec === 'Cierre';
+    topNav.style.opacity = isSpecial ? '0' : '1';
+    topNav.style.pointerEvents = isSpecial ? 'none' : 'auto';
+    document.querySelectorAll('.nav-section').forEach(function(el) {
+        el.classList.toggle('active', el.dataset.section === sec);
+    });
+    document.querySelectorAll('.nav-sub-item').forEach(function(el) {
+        el.classList.toggle('active', parseInt(el.dataset.slideIdx) === current);
+    });
+}
+
+function goToSlide(n) {
+    if (n < 0 || n >= slides.length) return;
+    slides[current].classList.remove('active');
+    slides[current].classList.add(n > current ? 'prev' : 'next');
+    current = n;
+    slides[current].classList.remove('prev', 'next');
+    slides[current].classList.add('active');
+    progressBar.style.width = ((current / (slides.length - 1)) * 100) + '%';
+    slideCounter.textContent = (current + 1) + ' / ' + slides.length;
+    updateNav();
+    document.getElementById('prevBtn').disabled = current === 0;
+    document.getElementById('nextBtn').disabled = current === slides.length - 1;
+    history.replaceState(null, '', '#slide-' + (n + 1));
+}
+
+document.getElementById('prevBtn').addEventListener('click', function() { goToSlide(current - 1); });
+document.getElementById('nextBtn').addEventListener('click', function() { goToSlide(current + 1); });
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); goToSlide(current + 1); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); goToSlide(current - 1); }
+});
+
+var hashMatch = location.hash.match(/^#slide-(\d+)$/);
+goToSlide(hashMatch ? Math.max(0, Math.min(parseInt(hashMatch[1]) - 1, slides.length - 1)) : 0);
+
+var editMode = false;
+var editToggle = document.getElementById('editToggle');
+editToggle.addEventListener('click', function() {
+    editMode = !editMode;
+    document.body.classList.toggle('edit-mode', editMode);
+    editToggle.classList.toggle('active', editMode);
+    document.querySelectorAll('h1, h2, h3, h4, h5, p, li, .box-title, .box-problem, .box-solution, .kpi-name, .kpi-target, .compare-item, .adoption-what, .adoption-result').forEach(function(el) {
+        el.contentEditable = editMode ? 'true' : 'false';
+    });
+});
+
+document.addEventListener('blur', function(e) {
+    if (editMode && e.target.closest('.slide')) {
+        var slideIndex = Array.from(slides).indexOf(e.target.closest('.slide'));
+        localStorage.setItem('ai4sdlc-slide-' + slideIndex, e.target.closest('.slide-content').innerHTML);
+    }
+}, true);
+
+slides.forEach(function(slide, i) {
+    var saved = localStorage.getItem('ai4sdlc-slide-' + i);
+    if (saved) slide.querySelector('.slide-content').innerHTML = saved;
+});
+    </script>
+<script>
+(function() {
+    var CLIENT_ID = "605248850504-ho9henin8ssfmcblljocrn0ak0jua49h.apps.googleusercontent.com";
+    var ALLOWED_DOMAINS = ["nfq.es", "nter.es", "nfq.mx", "nfq.com.br"];
+    var SESSION_KEY = "kdd_auth";
+    var LOG_ENDPOINT = "https://script.google.com/macros/s/AKfycbx42FyRhBeErzd74a286wsV6CvOOq4xZQk1PFFhIQ-aDqPNGE16cBRsKOR0Ldy9zwbz4w/exec";
+    var DOC_NAME = (location.pathname.replace(/^\//, '').replace(/\.html$/, '') || 'index');
+
+    function isAllowed(email) {
+        return ALLOWED_DOMAINS.some(function(d) { return email.endsWith('@' + d); });
+    }
+
+    function grantAccess() {
+        document.getElementById('auth-gate').style.display = 'none';
+    }
+
+    function showError(msg) {
+        var el = document.getElementById('auth-gate-error');
+        el.textContent = msg;
+        el.style.display = 'block';
+    }
+
+    // Check existing session
+    try {
+        var session = JSON.parse(sessionStorage.getItem(SESSION_KEY));
+        if (session && session.email && isAllowed(session.email) && session.exp > Date.now()) {
+            grantAccess();
+            return; // Already authenticated, skip GIS init
+        }
+    } catch(e) {}
+
+    // Google Identity Services callback
+    window.__onGoogleSignIn = function(response) {
+        // Decode JWT payload (base64url)
+        try {
+            var payload = JSON.parse(atob(response.credential.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));
+            if (payload.email && isAllowed(payload.email)) {
+                sessionStorage.setItem(SESSION_KEY, JSON.stringify({
+                    email: payload.email,
+                    name: payload.name,
+                    exp: Date.now() + 8 * 60 * 60 * 1000 // 8 hours
+                }));
+                try {
+                    fetch(LOG_ENDPOINT, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify({ idToken: response.credential, doc: DOC_NAME })
+                    }).catch(function() {});
+                } catch(e) {}
+                grantAccess();
+            } else {
+                showError('Access denied. Only corporate accounts (@nfq.es, @nter.es, @nfq.mx, @nfq.com.br) are allowed.');
+            }
+        } catch(e) {
+            showError('Authentication error. Please try again.');
+        }
+    };
+
+    // Render Google Sign-In button (no hosted_domain to allow both domains)
+    google.accounts.id.initialize({
+        client_id: CLIENT_ID,
+        callback: window.__onGoogleSignIn,
+        ux_mode: 'popup'
+    });
+    google.accounts.id.renderButton(
+        document.getElementById('auth-gate-btn'),
+        { theme: 'filled_blue', size: 'large', shape: 'pill', text: 'signin_with', width: 280 }
+    );
+})();
+</script>
+
+</body>
+</html>
